@@ -267,6 +267,13 @@ function validar({ desde, hasta }) {
 // DATOS FALSOS con el formato de GET /api/analisis del contrato
 const ANIO_PROYECCION = 2030;
 
+const USAR_SERVIDOR = true;   // false = volver a los datos falsos
+const API = 'http://127.0.0.1:5000';
+
+// TEMPORAL: hasta que el equipo acuerde los nombres de zona en series.json
+const ZONA_API = { 'Dominican Republic': 'Republica Dominicana' };
+const zonaParaApi = nombre => ZONA_API[nombre] || nombre;
+
 // DATOS FALSOS con el formato de GET /api/analisis del contrato
 function analisisFalso({ zona, variable, desde, hasta }) {
   const fechas = [], valores = [], tendencia = [];
@@ -311,12 +318,28 @@ function analisisFalso({ zona, variable, desde, hasta }) {
 
 // Cuando el servidor de la Persona 2 esté listo, solo se cambia esta función
 async function obtenerAnalisis(params) {
-  return analisisFalso(params);
+  if (!USAR_SERVIDOR) return analisisFalso(params);
+
+  const url = `${API}/api/analisis?` +
+    new URLSearchParams({ ...params, zona: zonaParaApi(params.zona) });
+  const respuesta = await fetch(url);
+  const datos = await respuesta.json();
+
+  if (!respuesta.ok) throw new Error(datos.error || 'Error del servidor');
+  datos.zona = params.zona;   // para mostrar el nombre en español
+  return datos;
 }
 
 const infoVariable = id => VARIABLES.find(v => v.id === id);
 const nombreVariable = id => infoVariable(id)?.nombre ?? id;
 const conSigno = (n, dec) => `${n >= 0 ? '+' : ''}${n.toFixed(dec)}`;
+
+// Alto que queda entre el inicio de la gráfica y el borde de abajo del panel
+function altoDisponible() {
+  const panel = document.getElementById('resultados').getBoundingClientRect();
+  const grafica = document.getElementById('grafica').getBoundingClientRect();
+  return Math.max(180, panel.bottom - grafica.top - 14);
+}
 
 function mostrarResultados(d) {
   const unidad = infoVariable(d.variable)?.unidad ?? '';
@@ -335,7 +358,9 @@ function mostrarResultados(d) {
   decada.className = clase;
 
   const pct = document.getElementById('t-pct');
-  pct.textContent = `${d.cambio_total >= 0 ? '↑' : '↓'} ${conSigno(d.cambio_pct, 1)} %`;
+    pct.textContent = d.cambio_pct == null
+    ? '—'
+    : `${d.cambio_total >= 0 ? '↑' : '↓'} ${conSigno(d.cambio_pct, 1)} %`;
   pct.className = clase;
 
   const hayProyeccion = d.proyeccion?.valores?.length > 0;
@@ -362,7 +387,7 @@ function mostrarResultados(d) {
   }
 
   Plotly.newPlot('grafica', lineas, {
-    height: Math.max(220, document.getElementById('grafica').clientHeight),
+        height: altoDisponible(),
     autosize: true,
     paper_bgcolor: 'rgba(0,0,0,0)', plot_bgcolor: 'rgba(0,0,0,0)',
     font: { color: '#fff', size: 13 },
@@ -390,7 +415,9 @@ document.getElementById('analizar').addEventListener('click', async () => {
     mostrarResultados(await obtenerAnalisis(params));
   } catch (e) {
     console.error(e);
-    alert('No se pudo obtener el análisis. ¿Está corriendo el servidor?');
+        alert(e instanceof TypeError
+      ? 'No se pudo conectar con el servidor. ¿Está corriendo app.py?'
+      : e.message);
   } finally {
     boton.disabled = false;
     boton.textContent = 'Analizar';
