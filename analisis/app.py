@@ -6,9 +6,11 @@ from analizar import analizar
 
 
 app = Flask(__name__)
+VARIABLES_DISPONIBLES = ("PRECIPITACION", "TEMP_AIRE", "TEMP_MAR")
+MENSAJE_VARIABLES = "La variable debe ser PRECIPITACION, TEMP_AIRE o TEMP_MAR."
+ruta_datos = Path(__file__).with_name("series.json")
 
-# Leer los datos al iniciar el servidor.
-ruta_datos = Path(__file__).with_name("series_falsa.json")
+# Leer las series al iniciar el servidor.
 
 with open(ruta_datos, "r", encoding="utf-8") as archivo:
     series = json.load(archivo)
@@ -26,21 +28,18 @@ def agregar_cors(respuesta):
 @app.get("/api/analisis")
 def api_analisis():
     zona = request.args.get("zona")
-    variable = request.args.get("variable", "NDVI").upper()
+    variable = request.args.get("variable", "PRECIPITACION").upper()
     desde = request.args.get("desde", "2001")
     hasta = request.args.get("hasta", "2024")
 
     if not zona:
         return jsonify({"error": "Falta indicar la zona."}), 400
-
-    if variable not in ("NDVI", "LST"):
-        return jsonify({"error": "La variable debe ser NDVI o LST."}), 400
-
+    if variable not in VARIABLES_DISPONIBLES:
+        return jsonify({"error": MENSAJE_VARIABLES}), 400
     if zona not in series:
         return jsonify({"error": f"No hay datos para la zona {zona}."}), 404
 
     serie = series[zona].get(variable, [])
-
     try:
         resultado = analizar(
             serie,
@@ -49,7 +48,7 @@ def api_analisis():
             zona=zona,
             variable=variable,
         )
-    except (ValueError, TypeError) as error:
+    except (ValueError, TypeError, KeyError) as error:
         return jsonify({"error": str(error)}), 400
 
     return jsonify(resultado)
@@ -57,18 +56,16 @@ def api_analisis():
 
 @app.get("/api/mapa")
 def api_mapa():
-    variable = request.args.get("variable", "NDVI").upper()
+    variable = request.args.get("variable", "PRECIPITACION").upper()
     desde = request.args.get("desde", "2001")
     hasta = request.args.get("hasta", "2024")
 
-    if variable not in ("NDVI", "LST"):
-        return jsonify({"error": "La variable debe ser NDVI o LST."}), 400
+    if variable not in VARIABLES_DISPONIBLES:
+        return jsonify({"error": MENSAJE_VARIABLES}), 400
 
     resultados = {}
-
     for zona, variables in series.items():
         serie = variables.get(variable, [])
-
         try:
             analisis_zona = analizar(
                 serie,
@@ -77,8 +74,8 @@ def api_mapa():
                 zona=zona,
                 variable=variable,
             )
-        except (ValueError, TypeError):
-            # Saltar zonas sin suficientes datos para el análisis.
+        except (ValueError, TypeError, KeyError):
+            # Omitir zonas que no tienen una serie suficiente para analizar.
             continue
 
         resultados[zona] = {
