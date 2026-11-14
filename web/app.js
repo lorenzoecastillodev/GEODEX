@@ -258,18 +258,14 @@ llenarAnios();
 // Todas van por país; 'provincias' solo en las que tienen datos por provincia.
 // Los id y niveles son DE PRUEBA: confirmar con Persona 1 y 2 y ponerlos en CONTRATO.md
 const VARIABLES = [
-  { id: 'NDVI', nombre: 'Vegetación', unidad: '', niveles: ['pais', 'provincias'],
-    descripcion: 'Qué tan verde y sana está la vegetación vista desde satélite. Va de -1 a 1: más alto, más plantas.' },
-  { id: 'AREA_QUEMADA', nombre: 'Áreas quemadas', unidad: 'km²', niveles: ['pais'],
-    descripcion: 'Superficie que los satélites detectaron quemada por incendios cada mes.' },
-  { id: 'SST', nombre: 'Temperatura del océano', unidad: '°C', niveles: ['pais'],
-    descripcion: 'Temperatura del agua en la superficie del mar. Influye en huracanes, corales y pesca.' },
-  { id: 'PRECIPITACION', nombre: 'Precipitación', unidad: 'mm', niveles: ['pais', 'provincias'],
-    descripcion: 'Cuánta lluvia cae cada mes.' },
-  { id: 'TEMP_AIRE', nombre: 'Temperatura media del aire', unidad: '°C', niveles: ['pais', 'provincias'],
+  { id: 'T2M', nombre: 'Temperatura media del aire', unidad: '°C', niveles: ['pais', 'provincias'],
     descripcion: 'Temperatura del aire a 2 metros del suelo, como la que sentimos al salir.' },
-  { id: 'HUMEDAD_SUELO', nombre: 'Humedad de la superficie', unidad: '%', niveles: ['pais'],
-    descripcion: 'Qué tan mojada está la capa de arriba del suelo. Importa para los cultivos y las sequías.' }
+  { id: 'T2M_MAX', nombre: 'Temperatura máxima', unidad: '°C', niveles: ['pais', 'provincias'],
+    descripcion: 'La temperatura más alta de cada día, promediada por mes. Ayuda a ver si hace más calor extremo.' },
+  { id: 'PRECTOTCORR', nombre: 'Precipitación', unidad: 'mm', niveles: ['pais', 'provincias'],
+    descripcion: 'Cuánta lluvia cae cada mes.' },
+  { id: 'GWETROOT', nombre: 'Humedad del suelo', unidad: '%', niveles: ['pais', 'provincias'],
+    descripcion: 'Qué tan mojado está el suelo donde crecen las raíces (hasta ~1 metro). Clave para cultivos y sequías.' }
 ];
 
 
@@ -366,12 +362,10 @@ function validar({ desde, hasta }) {
 
 const ANIO_PROYECCION = 2030;
 
-const USAR_SERVIDOR = false;   // false = volver a los datos falsos
+const USAR_SERVIDOR = true;   // false = volver a los datos falsos
 const API = 'http://127.0.0.1:5000';
 
-// TEMPORAL: hasta que el equipo acuerde los nombres de zona en series.json
-const ZONA_API = { 'Dominican Republic': 'Republica Dominicana' };
-const zonaParaApi = nombre => ZONA_API[nombre] || nombre;
+const zonaParaApi = nombre => nombre;
 
 // DATOS FALSOS con el formato de GET /api/analisis del contrato
 function analisisFalso({ zona, variable, desde, hasta }) {
@@ -425,7 +419,8 @@ async function obtenerAnalisis(params) {
   const datos = await respuesta.json();
 
   if (!respuesta.ok) throw new Error(datos.error || 'Error del servidor');
-  datos.zona = params.zona;   // para mostrar el nombre en español
+    datos.zona = params.zona;
+  datos.resumen = datos.resumen.replace(params.zona, nombreBonito(params.zona));
   return datos;
 }
 const nombreVariable = id => infoVariable(id)?.nombre ?? id;
