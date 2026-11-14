@@ -21,7 +21,7 @@ MIN_REGIONES_DISTINTAS = 0.6      # menos de 60 % de regiones distintas = no se 
 
 PAISES = ["CUB", "DOM", "HTI", "JAM", "BHS"]
 SOLO_PAIS = {"pr.json": "PRI"}
-REGIONES_ESPECIALES = {"DOM": "DOM-macrorregiones.geojson"}
+REGIONES_ESPECIALES = {"DOM": "DOM-regiones.geojson"}
 
 CARPETA_GEO = Path("geo")
 CACHE = Path("cache_power")
