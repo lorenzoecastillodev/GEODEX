@@ -3,7 +3,7 @@ const CENTRO_CARIBE = [18.5, -72];
 const ZOOM_INICIAL = 6;
 
 // Dónde están los GeoJSON (cuando la Persona 1 suba los oficiales: '../datos/geo/')
-const RUTA_GEO = 'geo_prueba/';
+const RUTA_GEO = '../datos/geo/';
 const ARCHIVOS_PAISES = [
   'geoBoundaries-CUB-ADM0_simplified.geojson',
   'geoBoundaries-HTI-ADM0_simplified.geojson',
@@ -12,7 +12,7 @@ const ARCHIVOS_PAISES = [
   'geoBoundaries-BHS-ADM0_simplified.geojson',
   'pr.json'
 ];
-const ARCHIVO_PROVINCIAS = 'geoBoundaries-DOM-ADM1_simplified.geojson';
+const ARCHIVO_PROVINCIAS = 'DOM-macrorregiones.geojson';
 
 // Nombres en español para mostrar (la llave sigue siendo el shapeName original)
 const NOMBRES_ES = {
