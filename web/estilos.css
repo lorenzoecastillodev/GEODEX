@@ -30,8 +30,9 @@ body { margin: 0; font-family: system-ui, Inter, sans-serif; color: #fff; backgr
   position: fixed; top: 120px; left: 20px; width: 340px; z-index: 1000;
   background: rgba(19, 41, 77, 0.95); border: 1px solid rgba(255,255,255,0.15);
   border-radius: 14px; padding: 22px; box-shadow: 0 12px 40px rgba(0,0,0,0.5);
+  max-height: calc(100vh - 140px); overflow-y: auto;
 }
-.paso { padding-bottom: 18px; margin-bottom: 18px; border-bottom: 1px solid rgba(255,255,255,0.12); }
+.paso { padding-bottom: 18px; margin-bottom: 12px; border-bottom: 1px solid rgba(255,255,255,0.12); }
 .paso h2 { display: flex; align-items: center; gap: 12px; font-size: 21px; margin: 0 0 10px; }
 .num {
   width: 34px; height: 34px; border-radius: 50%; background: var(--turquesa); color: var(--marino);
@@ -93,3 +94,81 @@ body { margin: 0; font-family: system-ui, Inter, sans-serif; color: #fff; backgr
 .leaflet-tooltip.etiqueta::before { display: none; } /* quitar la flechita */
 
 .leaflet-interactive { cursor: pointer; }
+
+/* ===== Buscador: zona no encontrada ===== */
+.buscador { transition: border-color 0.2s; }
+.buscador.error { border-color: #e74c3c; animation: temblar 0.3s; }
+@keyframes temblar {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-6px); }
+  75% { transform: translateX(6px); }
+}
+
+.opcion-var {
+  flex: 1; padding: 12px; border-radius: 999px; font-size: 16px; font-weight: 600; cursor: pointer;
+  background: transparent; color: #fff; border: 2px solid rgba(255,255,255,0.7);
+}
+.opcion-var.activa { background: var(--turquesa); color: var(--marino); border-color: var(--turquesa); }
+
+.anios { display: flex; gap: 10px; margin-top: 12px; }
+.anios label { flex: 1; display: flex; flex-direction: column; gap: 4px; font-size: 14px; opacity: 0.9; }
+.anios select, #variable {
+  padding: 10px; border-radius: 8px; font-size: 16px;
+  background: var(--marino); color: #fff; border: 1px solid rgba(255,255,255,0.3);
+  #variable { width: 100%; }
+}
+
+#analizar {
+  width: 100%; margin-top: 16px; padding: 16px; border: none; border-radius: 12px; cursor: pointer;
+  background: var(--turquesa); color: var(--marino); font-size: 20px; font-weight: 800;
+}
+#analizar:disabled { opacity: 0.4; cursor: not-allowed; }
+
+#resultados {
+  position: fixed; left: 380px; right: 100px; bottom: 20px; height: 48vh; z-index: 1000;
+  background: rgba(19, 41, 77, 0.97); border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 14px; padding: 16px 20px; box-shadow: 0 12px 40px rgba(0,0,0,0.5);
+  display: flex; flex-direction: column; gap: 10px;
+}
+#resultados[hidden] { display: none; }
+
+.res-cabecera { display: flex; justify-content: space-between; align-items: center; }
+.res-cabecera h2 { margin: 0; font-size: 20px; }
+#cerrar-resultados { background: none; border: none; color: #fff; cursor: pointer; }
+#cerrar-resultados .icono { width: 26px; height: 26px; }
+
+.tarjetas { display: flex; gap: 12px; }
+.tarjeta {
+  flex: 1; background: var(--marino); border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 10px; padding: 10px 14px; display: flex; flex-direction: column; gap: 2px;
+}
+.tarjeta span { font-size: 14px; opacity: 0.8; }
+.tarjeta b { font-size: 26px; }
+.tarjeta small { font-size: 13px; opacity: 0.7; }
+.sube { color: #2ecc71; }
+.baja { color: #e74c3c; }
+.neutro { color: var(--gris); }
+
+#resumen { margin: 0; font-style: italic; font-size: 17px; }
+#grafica { flex: 1; min-height: 0; }
+
+/* 1. Que hidden funcione en el aviso */
+#aviso[hidden] { display: none; }
+
+/* 2. Más espacio para la gráfica */
+#resultados { height: 58vh; padding: 12px 18px; gap: 6px; }
+.tarjeta { padding: 6px 12px; }
+.tarjeta b { font-size: 22px; }
+.res-cabecera h2 { font-size: 18px; }
+#resumen { font-size: 15px; }
+#grafica { min-height: 220px; }
+
+/* 3. Barra de scroll del panel con los colores de la app */
+#panel::-webkit-scrollbar { width: 8px; }
+#panel::-webkit-scrollbar-track { background: transparent; }
+#panel::-webkit-scrollbar-thumb { background: rgba(31, 182, 166, 0.5); border-radius: 999px; }
+#panel { scrollbar-width: thin; scrollbar-color: rgba(31, 182, 166, 0.5) transparent; }
+
+.opcion { font-size: 15px; padding: 10px 8px; white-space: nowrap; }
+
+.opcion { font-size: 15px; padding: 10px 8px; white-space: nowrap; }
