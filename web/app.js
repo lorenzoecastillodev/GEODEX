@@ -432,6 +432,48 @@ function explicarP(p) {
   return 'podría ser casualidad';
 }
 
+// Si el servidor no manda proyección, se calcula aquí:
+// línea de tendencia alargada hasta 2030 + el patrón promedio de cada mes
+function calcularProyeccion(d) {
+  if (d.proyeccion?.valores?.length) return d.proyeccion;
+  const n = d.valores?.length;
+  if (!n || !d.tendencia?.length) return null;
+
+  // patrón de cada mes: cuánto se aleja, en promedio, de la tendencia
+  const suma = Array(12).fill(0), cuenta = Array(12).fill(0);
+  d.fechas.forEach((fecha, i) => {
+    const mes = Number(fecha.slice(5, 7)) - 1;
+    suma[mes] += d.valores[i] - d.tendencia[i];
+    cuenta[mes]++;
+  });
+  const patron = suma.map((s, m) => cuenta[m] ? s / cuenta[m] : 0);
+
+  const pasoMensual = typeof d.pendiente_anual === 'number'
+    ? d.pendiente_anual / 12
+    : (d.tendencia[n - 1] - d.tendencia[0]) / (n - 1);
+
+  const limitar = v => {
+    if (d.variable === 'PRECTOTCORR') return Math.max(0, v);
+    if (d.variable === 'GWETROOT') return Math.min(100, Math.max(0, v));
+    return v;
+  };
+
+  let [anio, mes] = d.fechas[n - 1].split('-').map(Number);
+  let i = n - 1;
+  const proyeccion = { fechas: [], valores: [] };
+  while (true) {
+    mes++;
+    if (mes > 12) { mes = 1; anio++; }
+    if (anio > ANIO_PROYECCION) break;
+    i++;
+    proyeccion.fechas.push(`${anio}-${String(mes).padStart(2, '0')}`);
+    proyeccion.valores.push(+limitar(d.tendencia[0] + pasoMensual * i + patron[mes - 1]).toFixed(3));
+  }
+  return proyeccion;
+}
+
+const promedio = lista => lista.reduce((a, b) => a + b, 0) / lista.length;
+
 function mostrarResultados(d) {
   const unidad = infoVariable(d.variable)?.unidad ?? '';
   const clase = !d.significativo ? 'neutro' : d.cambio_total >= 0 ? 'sube' : 'baja';
@@ -454,13 +496,20 @@ function mostrarResultados(d) {
     : `${d.cambio_total >= 0 ? '↑' : '↓'} ${conSigno(d.cambio_pct, 1)} %`;
   pct.className = clase;
 
-  const hayProyeccion = d.proyeccion?.valores?.length > 0;
+   const proyeccion = d.significativo ? calcularProyeccion(d) : null;
+  const hayProyeccion = Boolean(proyeccion?.valores.length);
+
+
   let texto = d.resumen;
   if (!d.significativo) texto += ' Aunque no es significativo, con más años de datos podría llegar a serlo.';
+  const u = unidad ? ' ' + unidad : '';
   if (hayProyeccion) {
-    const ultimoAnio = d.proyeccion.valores.slice(-12);
-    const promedio = ultimoAnio.reduce((a, b) => a + b, 0) / ultimoAnio.length;
-    texto += ` Si la tendencia sigue igual, en ${ANIO_PROYECCION} el promedio sería de ${promedio.toFixed(2)}${unidad ? ' ' + unidad : ''}.`;
+    const actual = promedio(d.valores.slice(-12));
+    const futuro = promedio(proyeccion.valores.slice(-12));
+    texto += ` Si la tendencia sigue igual, el promedio pasaría de ${actual.toFixed(2)}${u} ` +
+             `(${d.fechas.at(-1).slice(0, 4)}) a ${futuro.toFixed(2)}${u} en ${ANIO_PROYECCION}.`;
+  } else if (!d.significativo) {
+    texto += ' No se proyecta a futuro porque no hay una tendencia clara.';
   }
   document.getElementById('resumen').textContent = texto;
 
@@ -478,7 +527,7 @@ function mostrarResultados(d) {
       mode: 'lines', line: { color: '#1fb6a6', width: 3, dash: 'dot' } }
   ];
   if (hayProyeccion) {
-    lineas.push({ x: d.proyeccion.fechas, y: d.proyeccion.valores, name: `Proyección a ${ANIO_PROYECCION}`,
+        lineas.push({ x: proyeccion.fechas, y: proyeccion.valores, name: `Proyección a ${ANIO_PROYECCION}`,
       mode: 'lines', line: { color: '#f5b041', width: 2, dash: 'dash' } });
   }
 
