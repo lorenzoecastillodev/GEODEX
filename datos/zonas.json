@@ -71,15 +71,43 @@
     "pais": "DOM",
     "nivel": "pais"
   },
-  "Norte o Cibao": {
+  "Cibao Noroeste": {
     "pais": "DOM",
     "nivel": "region"
   },
-  "Suroeste": {
+  "El Valle": {
     "pais": "DOM",
     "nivel": "region"
   },
-  "Sureste": {
+  "Enriquillo": {
+    "pais": "DOM",
+    "nivel": "region"
+  },
+  "Yuma": {
+    "pais": "DOM",
+    "nivel": "region"
+  },
+  "Higuamo": {
+    "pais": "DOM",
+    "nivel": "region"
+  },
+  "Cibao Nordeste": {
+    "pais": "DOM",
+    "nivel": "region"
+  },
+  "Cibao Norte": {
+    "pais": "DOM",
+    "nivel": "region"
+  },
+  "Valdesia": {
+    "pais": "DOM",
+    "nivel": "region"
+  },
+  "Ozama": {
+    "pais": "DOM",
+    "nivel": "region"
+  },
+  "Cibao Sur": {
     "pais": "DOM",
     "nivel": "region"
   },

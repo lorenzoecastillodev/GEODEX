@@ -2,17 +2,17 @@
 const CENTRO_CARIBE = [18.5, -72];
 const ZOOM_INICIAL = 6;
 
-// Dónde están los GeoJSON (cuando la Persona 1 suba los oficiales: '../datos/geo/')
+// Dónde están los GeoJSON
 const RUTA_GEO = '../datos/geo/';
-const ARCHIVOS_PAISES = [
-  'geoBoundaries-CUB-ADM0_simplified.geojson',
-  'geoBoundaries-HTI-ADM0_simplified.geojson',
-  'geoBoundaries-DOM-ADM0_simplified.geojson',
-  'geoBoundaries-JAM-ADM0_simplified.geojson',
-  'geoBoundaries-BHS-ADM0_simplified.geojson',
-  'pr.json'
+// regiones: null = ese país solo se ve completo
+const PAISES = [
+  { iso: 'CUB', archivo: 'geoBoundaries-CUB-ADM0_simplified.geojson', regiones: 'geoBoundaries-CUB-ADM1_simplified.geojson' },
+  { iso: 'HTI', archivo: 'geoBoundaries-HTI-ADM0_simplified.geojson', regiones: 'geoBoundaries-HTI-ADM1_simplified.geojson' },
+  { iso: 'DOM', archivo: 'geoBoundaries-DOM-ADM0_simplified.geojson', regiones: 'DOM-regiones.geojson' },
+  { iso: 'JAM', archivo: 'geoBoundaries-JAM-ADM0_simplified.geojson', regiones: null },
+  { iso: 'BHS', archivo: 'geoBoundaries-BHS-ADM0_simplified.geojson', regiones: 'geoBoundaries-BHS-ADM1_simplified.geojson' },
+  { iso: 'PRI', archivo: 'pr.json', regiones: null }
 ];
-const ARCHIVO_PROVINCIAS = 'DOM-macrorregiones.geojson';
 
 // Nombres en español para mostrar (la llave sigue siendo el shapeName original)
 const NOMBRES_ES = {
@@ -20,7 +20,7 @@ const NOMBRES_ES = {
   'Haiti': 'Haití',
   'Dominican Republic': 'República Dominicana',
   'Jamaica': 'Jamaica',
-    'Commonwealth of The Bahamas': 'Bahamas',
+  'Commonwealth of The Bahamas': 'Bahamas',
   'Puerto Rico': 'Puerto Rico'
 };
 const nombreBonito = nombre => NOMBRES_ES[nombre] || nombre;
@@ -57,7 +57,9 @@ let zonaElegida = null;                         // shapeName de la zona elegida
 let capaElegida = null;                         // la capa de Leaflet de esa zona
 const capasPorNombre = {};                      // shapeName -> capa (para el buscador)
 const capaPaises = L.featureGroup().addTo(mapa);   // todos los países juntos
-const capaProvincias = L.featureGroup();           // provincias de RD (ocultas al inicio)
+let paisActual = null;      // ISO del país elegido, ej: 'DOM'
+const capasRegiones = {};   // ISO -> grupo con las regiones de ese país
+const capaPaisPorIso = {};  // ISO -> capa del país
 
 // ===== Elegir y limpiar zona =====
 function elegirZona(nombre, capa) {
@@ -73,6 +75,9 @@ function elegirZona(nombre, capa) {
 
   document.getElementById('aviso').hidden = true;
   document.getElementById('analizar').disabled = false;
+
+  paisActual = capa.iso;
+  actualizarBotonRegiones();
 }
 
 function limpiarSeleccion() {
@@ -85,7 +90,7 @@ function limpiarSeleccion() {
   texto.classList.add('vacia');
 
   document.getElementById('aviso-texto').textContent =
-    modo === 'pais' ? 'Haz clic en un país para empezar' : 'Haz clic en una region';
+    modo === 'pais' ? 'Haz clic en un país para empezar' : 'Haz clic en una región';
   document.getElementById('aviso').hidden = false;
   document.getElementById('analizar').disabled = true;
   document.getElementById('resultados').hidden = true;
@@ -93,12 +98,14 @@ function limpiarSeleccion() {
 
 // ===== Dibujar un GeoJSON =====
 // tipo = 'pais' o 'provincias' (para saber a qué modo pertenece cada zona)
-function crearCapa(geojson, tipo) {
+function crearCapa(geojson, tipo, iso) {
   return L.geoJSON(geojson, {
     style: ESTILO_NORMAL,
     onEachFeature: (feature, capa) => {
       const nombre = feature.properties.shapeName;
       capa.tipo = tipo;
+      capa.iso = iso;
+      if (tipo === 'pais') capaPaisPorIso[iso] = capa;
       capasPorNombre[nombre] = capa;
 
       // nombre en español, solo al pasar el mouse
@@ -114,31 +121,53 @@ function crearCapa(geojson, tipo) {
   });
 }
 
-// ===== Cambiar entre País completo y Por provincias =====
+// ===== Cambiar entre País completo y Por regiones =====
 function cambiarModo(nuevoModo) {
   if (nuevoModo === modo) return;
+  if (nuevoModo === 'provincias' && !capasRegiones[paisActual]) return;
   modo = nuevoModo;
 
-  // botón activo
   document.querySelectorAll('.opcion').forEach(boton =>
     boton.classList.toggle('activa', boton.dataset.modo === modo)
   );
 
-  // mostrar una capa y esconder la otra
+  const regiones = capasRegiones[paisActual];
   if (modo === 'provincias') {
     mapa.removeLayer(capaPaises);
-    capaProvincias.addTo(mapa);
-    // si las provincias no cargaron, getBounds() de un grupo vacío lanza error
-    if (capaProvincias.getLayers().length) mapa.fitBounds(capaProvincias.getBounds(), MARGEN_ZOOM);
+    regiones.addTo(mapa);
+    mapa.fitBounds(regiones.getBounds(), MARGEN_ZOOM);
   } else {
-    mapa.removeLayer(capaProvincias);
+    if (regiones) mapa.removeLayer(regiones);
     capaPaises.addTo(mapa);
-    mapa.setView(CENTRO_CARIBE, ZOOM_INICIAL);
   }
+
   limpiarColores();
   llenarVariables();
   limpiarSeleccion();
+
+  // al volver a "País completo", se vuelve a elegir el país que se estaba viendo
+  if (modo === 'pais' && paisActual) {
+    const capa = capaPaisPorIso[paisActual];
+    mapa.fitBounds(capa.getBounds(), MARGEN_ZOOM);
+    elegirZona(capa.feature.properties.shapeName, capa);
+  }
+
+  actualizarBotonRegiones();
   actualizarMapa();
+}
+
+function actualizarBotonRegiones() {
+  const boton = document.querySelector('.opcion[data-modo="provincias"]');
+  const tieneRegiones = Boolean(paisActual && capasRegiones[paisActual]);
+  boton.disabled = modo === 'pais' && !tieneRegiones;
+
+  const nombre = paisActual
+    ? nombreBonito(capaPaisPorIso[paisActual].feature.properties.shapeName)
+    : '';
+  document.getElementById('nota-regiones').textContent =
+    !paisActual ? 'Elige un país para ver sus regiones'
+    : tieneRegiones ? `Puedes ver las regiones de ${nombre}`
+    : `${nombre} no tiene regiones con datos`;
 }
 
 document.querySelectorAll('.opcion').forEach(boton =>
@@ -151,7 +180,7 @@ document.querySelectorAll('.opcion').forEach(boton =>
 const normalizar = texto =>
   texto.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim();
 
-// Llena las sugerencias con países y provincias
+// Llena las sugerencias con los países
 function llenarBuscador() {
   document.getElementById('zonas').innerHTML = Object.keys(capasPorNombre)
     .filter(nombre => capasPorNombre[nombre].tipo === 'pais')
@@ -177,7 +206,7 @@ function buscar() {
   }
 
   const capa = capasPorNombre[nombre];
-  cambiarModo(capa.tipo);   // si buscas una provincia estando en "País", cambia solo
+  cambiarModo(capa.tipo);
   mapa.fitBounds(capa.getBounds(), MARGEN_ZOOM);
   elegirZona(nombre, capa);
   input.value = nombreBonito(nombre);
@@ -194,23 +223,20 @@ async function cargarGeo(archivo) {
 }
 
 async function iniciar() {
-  // países
-  for (const archivo of ARCHIVOS_PAISES) {
+  for (const { iso, archivo, regiones } of PAISES) {
     try {
-      crearCapa(await cargarGeo(archivo), 'pais').addTo(capaPaises);
+      crearCapa(await cargarGeo(archivo), 'pais', iso).addTo(capaPaises);
+      if (regiones) {
+        const grupo = L.featureGroup();
+        crearCapa(await cargarGeo(regiones), 'provincias', iso).addTo(grupo);
+        capasRegiones[iso] = grupo;
+      }
     } catch (error) {
-      console.warn('No se pudo cargar', archivo, error);
+      console.warn('No se pudo cargar', iso, error);
     }
   }
-
-  // provincias de RD
-  try {
-    crearCapa(await cargarGeo(ARCHIVO_PROVINCIAS), 'provincias').addTo(capaProvincias);
-  } catch (error) {
-    console.warn('No se pudieron cargar las provincias', error);
-  }
-
   llenarBuscador();
+  actualizarBotonRegiones();
 }
 
 // ===== Variable, años y Analizar =====
@@ -443,7 +469,7 @@ function mostrarResultados(d) {
   }
   document.getElementById('resumen').textContent = texto;
 
-    const impacto = textoImpacto(d);
+  const impacto = textoImpacto(d);
   document.getElementById('impacto').hidden = !impacto;
   document.getElementById('impacto-texto').textContent = impacto ?? '';
 
@@ -483,7 +509,7 @@ function mostrarResultados(d) {
 function mapaFalso() {
   const resultado = {};
   Object.values(capasPorNombre)
-    .filter(capa => capa.tipo === 'provincias')
+    .filter(capa => capa.tipo === 'provincias' && capa.iso === paisActual)
     .forEach(capa => {
       resultado[capa.feature.properties.shapeName] = {
         pendiente_decada: (Math.random() - 0.5) * 0.05,
@@ -496,7 +522,7 @@ function mapaFalso() {
 async function obtenerMapa({ variable, desde, hasta }) {
   if (!USAR_SERVIDOR) return mapaFalso();
 
-  const respuesta = await fetch(`${API}/api/mapa?` + new URLSearchParams({ variable, desde, hasta }));
+  const respuesta = await fetch(`${API}/api/mapa?` + new URLSearchParams({ variable, desde, hasta, pais: paisActual }));
   const datos = await respuesta.json();
   if (!respuesta.ok) throw new Error(datos.error || 'Error del servidor');
   return datos;
@@ -506,7 +532,8 @@ function pintarMapa(datos, { variable, desde, hasta }) {
   const unidad = infoVariable(variable)?.unidad ?? '';
   document.getElementById('leyenda-titulo').textContent =
     `${nombreVariable(variable)} · ${desde}–${hasta}`;
-  const regiones = Object.values(capasPorNombre).filter(capa => capa.tipo === 'provincias');
+  const regiones = Object.values(capasPorNombre)
+    .filter(capa => capa.tipo === 'provincias' && capa.iso === paisActual);
 
   // el cambio más fuerte define el color más intenso
   const maximo = Math.max(...Object.values(datos).map(d => Math.abs(d.pendiente_decada)), 1e-9);
