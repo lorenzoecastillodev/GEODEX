@@ -20,7 +20,7 @@ const NOMBRES_ES = {
   'Haiti': 'Haití',
   'Dominican Republic': 'República Dominicana',
   'Jamaica': 'Jamaica',
-  'Commonwealth of the Bahamas': 'Bahamas',
+    'Commonwealth of The Bahamas': 'Bahamas',
   'Puerto Rico': 'Puerto Rico'
 };
 const nombreBonito = nombre => NOMBRES_ES[nombre] || nombre;
@@ -154,6 +154,7 @@ const normalizar = texto =>
 // Llena las sugerencias con países y provincias
 function llenarBuscador() {
   document.getElementById('zonas').innerHTML = Object.keys(capasPorNombre)
+    .filter(nombre => capasPorNombre[nombre].tipo === 'pais')
     .map(nombre => `<option value="${nombreBonito(nombre)}">`)
     .join('');
 }
@@ -165,7 +166,8 @@ function buscar() {
   if (!texto) return;
 
   const nombre = Object.keys(capasPorNombre).find(n =>
-    normalizar(nombreBonito(n)).includes(texto) || normalizar(n).includes(texto)
+    capasPorNombre[n].tipo === 'pais' &&
+    (normalizar(nombreBonito(n)).includes(texto) || normalizar(n).includes(texto))
   );
 
   if (!nombre) {
