@@ -1,0 +1,270 @@
+{
+  "Cuba": {
+    "pais": "CUB",
+    "nivel": "pais"
+  },
+  "Isle of Youth": {
+    "pais": "CUB",
+    "nivel": "region"
+  },
+  "Havana": {
+    "pais": "CUB",
+    "nivel": "region"
+  },
+  "Matanzas": {
+    "pais": "CUB",
+    "nivel": "region"
+  },
+  "Pinar del Rio": {
+    "pais": "CUB",
+    "nivel": "region"
+  },
+  "Camagüey": {
+    "pais": "CUB",
+    "nivel": "region"
+  },
+  "Ciego de Avila": {
+    "pais": "CUB",
+    "nivel": "region"
+  },
+  "Cienfuegos": {
+    "pais": "CUB",
+    "nivel": "region"
+  },
+  "Granma": {
+    "pais": "CUB",
+    "nivel": "region"
+  },
+  "Guantánamo": {
+    "pais": "CUB",
+    "nivel": "region"
+  },
+  "Holguín": {
+    "pais": "CUB",
+    "nivel": "region"
+  },
+  "Las Tunas": {
+    "pais": "CUB",
+    "nivel": "region"
+  },
+  "Santiago de Cuba": {
+    "pais": "CUB",
+    "nivel": "region"
+  },
+  "Sancti Spiritus": {
+    "pais": "CUB",
+    "nivel": "region"
+  },
+  "Villa Clara": {
+    "pais": "CUB",
+    "nivel": "region"
+  },
+  "Artemisa": {
+    "pais": "CUB",
+    "nivel": "region"
+  },
+  "Mayabeque": {
+    "pais": "CUB",
+    "nivel": "region"
+  },
+  "Dominican Republic": {
+    "pais": "DOM",
+    "nivel": "pais"
+  },
+  "Norte o Cibao": {
+    "pais": "DOM",
+    "nivel": "region"
+  },
+  "Suroeste": {
+    "pais": "DOM",
+    "nivel": "region"
+  },
+  "Sureste": {
+    "pais": "DOM",
+    "nivel": "region"
+  },
+  "Haiti": {
+    "pais": "HTI",
+    "nivel": "pais"
+  },
+  "Département de l'Ouest": {
+    "pais": "HTI",
+    "nivel": "region"
+  },
+  "Département de la Grande-Anse": {
+    "pais": "HTI",
+    "nivel": "region"
+  },
+  "Département des Nippes": {
+    "pais": "HTI",
+    "nivel": "region"
+  },
+  "Département du Sud-Est": {
+    "pais": "HTI",
+    "nivel": "region"
+  },
+  "Nord-Ouest Department": {
+    "pais": "HTI",
+    "nivel": "region"
+  },
+  "Département du Nord": {
+    "pais": "HTI",
+    "nivel": "region"
+  },
+  "Nord-Est Department": {
+    "pais": "HTI",
+    "nivel": "region"
+  },
+  "Centre Department": {
+    "pais": "HTI",
+    "nivel": "region"
+  },
+  "Artibonite Department": {
+    "pais": "HTI",
+    "nivel": "region"
+  },
+  "Sud Department": {
+    "pais": "HTI",
+    "nivel": "region"
+  },
+  "Jamaica": {
+    "pais": "JAM",
+    "nivel": "pais"
+  },
+  "Commonwealth of The Bahamas": {
+    "pais": "BHS",
+    "nivel": "pais"
+  },
+  "Acklins": {
+    "pais": "BHS",
+    "nivel": "region"
+  },
+  "Biminis": {
+    "pais": "BHS",
+    "nivel": "region"
+  },
+  "Berry Islands": {
+    "pais": "BHS",
+    "nivel": "region"
+  },
+  "Black Point": {
+    "pais": "BHS",
+    "nivel": "region"
+  },
+  "Cat Island": {
+    "pais": "BHS",
+    "nivel": "region"
+  },
+  "Central Abaco": {
+    "pais": "BHS",
+    "nivel": "region"
+  },
+  "Central Andros": {
+    "pais": "BHS",
+    "nivel": "region"
+  },
+  "Central Eleuthera": {
+    "pais": "BHS",
+    "nivel": "region"
+  },
+  "City of Freeport": {
+    "pais": "BHS",
+    "nivel": "region"
+  },
+  "Crooked Island": {
+    "pais": "BHS",
+    "nivel": "region"
+  },
+  "East Grand Bahama": {
+    "pais": "BHS",
+    "nivel": "region"
+  },
+  "Exuma": {
+    "pais": "BHS",
+    "nivel": "region"
+  },
+  "Grand Cay": {
+    "pais": "BHS",
+    "nivel": "region"
+  },
+  "Harbour Island": {
+    "pais": "BHS",
+    "nivel": "region"
+  },
+  "Hope Town": {
+    "pais": "BHS",
+    "nivel": "region"
+  },
+  "Inagua": {
+    "pais": "BHS",
+    "nivel": "region"
+  },
+  "Long Island": {
+    "pais": "BHS",
+    "nivel": "region"
+  },
+  "Mangrove Cay": {
+    "pais": "BHS",
+    "nivel": "region"
+  },
+  "Mayaguana": {
+    "pais": "BHS",
+    "nivel": "region"
+  },
+  "Moore's Island": {
+    "pais": "BHS",
+    "nivel": "region"
+  },
+  "New Providence": {
+    "pais": "BHS",
+    "nivel": "region"
+  },
+  "North Abaco": {
+    "pais": "BHS",
+    "nivel": "region"
+  },
+  "North Andros": {
+    "pais": "BHS",
+    "nivel": "region"
+  },
+  "North Eleuthera": {
+    "pais": "BHS",
+    "nivel": "region"
+  },
+  "Ragged Island": {
+    "pais": "BHS",
+    "nivel": "region"
+  },
+  "Rum Cay": {
+    "pais": "BHS",
+    "nivel": "region"
+  },
+  "San Salvador": {
+    "pais": "BHS",
+    "nivel": "region"
+  },
+  "South Abaco": {
+    "pais": "BHS",
+    "nivel": "region"
+  },
+  "South Andros": {
+    "pais": "BHS",
+    "nivel": "region"
+  },
+  "South Eleuthera": {
+    "pais": "BHS",
+    "nivel": "region"
+  },
+  "Spanish Wells": {
+    "pais": "BHS",
+    "nivel": "region"
+  },
+  "West Grand Bahama": {
+    "pais": "BHS",
+    "nivel": "region"
+  },
+  "Puerto Rico": {
+    "pais": "PRI",
+    "nivel": "pais"
+  }
+}
