@@ -20,7 +20,7 @@
       <p>¿Cambió el Caribe entre 2001 y 2025?</p>
     </div>
     <div class="buscador">
-      <input id="buscador" list="zonas" placeholder="Busca un país o provincia...">
+      <input id="buscador" list="zonas" placeholder="Busca un país o regiones...">
       <datalist id="zonas"></datalist>
       <button id="btn-buscar" title="Buscar">
   <svg class="icono" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><line x1="16.5" y1="16.5" x2="21" y2="21"/></svg>
@@ -39,13 +39,22 @@
       <h2><span class="num">2</span> ¿Cómo quieres verla?</h2>
       <div class="segmentado">
         <button class="opcion activa" data-modo="pais">País completo</button>
-        <button class="opcion" data-modo="provincias">Por provincias</button>
+        <button class="opcion" data-modo="provincias">Por regiones</button>
       </div>
       <p class="nota">
   <svg class="icono" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="11" x2="12" y2="16"/><line x1="12" y1="8" x2="12" y2="8"/></svg>
   Por ahora solo República Dominicana
 </p>
     </section>
+
+    <section class="paso">
+  <h2><span class="num">3</span> ¿Qué quieres analizar?</h2>
+  <select id="variable"></select>
+  <div class="anios">
+    <label>Desde <select id="desde"></select></label>
+    <label>Hasta <select id="hasta"></select></label>
+  </div>
+</section>
 
     <section class="zona-elegida">
       <h3>
@@ -54,12 +63,29 @@
 </h3>
       <p id="zona-elegida" class="vacia">Ninguna todavía</p>
     </section>
+    <button id="analizar" disabled>Analizar</button>
   </aside>
 
+  <section id="resultados" hidden>
+  <header class="res-cabecera">
+    <h2 id="res-titulo"></h2>
+    <button id="cerrar-resultados" title="Cerrar">
+      <svg class="icono" viewBox="0 0 24 24"><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg>
+    </button>
+  </header>
+  <div class="tarjetas">
+    <div class="tarjeta"><span>¿Cambio significativo?</span><b id="t-sig"></b><small id="t-p"></small></div>
+    <div class="tarjeta"><span>Cambio por década</span><b id="t-decada"></b></div>
+    <div class="tarjeta"><span>Cambio total</span><b id="t-pct"></b></div>
+  </div>
+  <p id="resumen"></p>
+  <div id="grafica"></div>
+</section>
+
   <!-- Aviso de abajo -->
-  <div id="aviso">
+<div id="aviso">
   <svg class="icono" viewBox="0 0 24 24"><path d="M4 4l7 17 2.5-7.5L21 11z"/></svg>
-  Haz clic en un país para empezar
+  <span id="aviso-texto">Haz clic en un país para empezar</span>
 </div>
 
   <!-- Botones de zoom propios -->
@@ -76,6 +102,7 @@
 </div>
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
   <script src="app.js"></script>
 </body>
 </html>
