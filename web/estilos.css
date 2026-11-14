@@ -1,0 +1,89 @@
+/* ===== Colores del proyecto ===== */
+:root {
+  --marino: #0b1d3a;
+  --marino-claro: #13294d;
+  --turquesa: #1fb6a6;
+  --tierra: #e8eef5;
+  --gris: #8a9bb5;
+}
+
+* { box-sizing: border-box; }
+body { margin: 0; font-family: system-ui, Inter, sans-serif; color: #fff; background: var(--marino); }
+
+/* ===== Mapa de fondo ===== */
+#mapa { position: fixed; inset: 0; background: var(--marino); z-index: 0; }
+
+/* ===== Barra superior ===== */
+#barra {
+  position: fixed; top: 0; left: 0; right: 0; height: 90px; z-index: 1000;
+  display: flex; align-items: center; gap: 60px; padding: 0 32px;
+  background: rgba(11, 29, 58, 0.92); border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+.marca h1 { margin: 0; font-size: 36px; font-weight: 800; letter-spacing: 1px; }
+.marca p { margin: 2px 0 0; font-size: 16px; opacity: 0.9; }
+
+.buscador { flex: 1; max-width: 780px; display: flex; border: 2px solid var(--turquesa); border-radius: 999px; overflow: hidden; }
+.buscador input {
+  flex: 1; background: transparent; border: none; outline: none;
+  color: #fff; font-size: 18px; padding: 14px 24px; font-style: italic;
+}
+.buscador button { width: 72px; border: none; background: var(--turquesa); font-size: 22px; cursor: pointer; }
+
+/* ===== Panel flotante ===== */
+#panel {
+  position: fixed; top: 120px; left: 20px; width: 340px; z-index: 1000;
+  background: rgba(19, 41, 77, 0.95); border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 14px; padding: 22px; box-shadow: 0 12px 40px rgba(0,0,0,0.5);
+}
+.paso { padding-bottom: 18px; margin-bottom: 18px; border-bottom: 1px solid rgba(255,255,255,0.12); }
+.paso h2 { display: flex; align-items: center; gap: 12px; font-size: 21px; margin: 0 0 10px; }
+.num {
+  width: 34px; height: 34px; border-radius: 50%; background: var(--turquesa); color: var(--marino);
+  display: inline-flex; align-items: center; justify-content: center; font-size: 17px;
+}
+.ayuda, .nota { margin: 0; font-style: italic; font-size: 15px; opacity: 0.9; }
+.nota { margin-top: 12px; }
+
+.segmentado { display: flex; gap: 10px; }
+.opcion {
+  flex: 1; padding: 12px; border-radius: 999px; font-size: 16px; font-weight: 600; cursor: pointer;
+  background: transparent; color: #fff; border: 2px solid rgba(255,255,255,0.7);
+}
+.opcion.activa { background: var(--turquesa); color: var(--marino); border-color: var(--turquesa); }
+
+.zona-elegida { background: var(--marino); border: 1px solid rgba(255,255,255,0.12); border-radius: 12px; padding: 14px 18px; }
+.zona-elegida h3 { margin: 0 0 8px; font-size: 18px; }
+.zona-elegida p { margin: 0; font-size: 20px; font-weight: 700; text-align: center; color: var(--turquesa); }
+.zona-elegida p.vacia { color: var(--gris); font-weight: 400; }
+
+/* ===== Aviso de abajo ===== */
+#aviso {
+  position: fixed; bottom: 36px; left: 50%; transform: translateX(-50%); z-index: 1000;
+  background: var(--turquesa); color: var(--marino); font-weight: 700; font-size: 20px;
+  padding: 14px 32px; border-radius: 999px; box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+}
+
+/* ===== Botones de zoom ===== */
+#controles { position: fixed; right: 20px; bottom: 36px; z-index: 1000; display: flex; flex-direction: column; gap: 10px; }
+#controles button {
+  width: 56px; height: 56px; border-radius: 10px; cursor: pointer;
+  background: var(--marino); color: var(--turquesa); border: 2px solid var(--turquesa); font-size: 26px;
+}
+#controles button:hover { background: var(--turquesa); color: var(--marino); }
+
+/* ===== Íconos SVG ===== */
+.icono {
+  width: 1.2em; height: 1.2em; flex-shrink: 0;
+  fill: none; stroke: currentColor; stroke-width: 2;
+  stroke-linecap: round; stroke-linejoin: round;
+}
+
+/* Alinear ícono + texto */
+.zona-elegida h3, .nota, #aviso { display: flex; align-items: center; gap: 8px; }
+.zona-elegida h3 .icono { color: var(--turquesa); }
+
+/* Botones con ícono centrado */
+.buscador button, #controles button { display: flex; align-items: center; justify-content: center; }
+.buscador button { color: var(--marino); }
+.buscador button .icono { width: 26px; height: 26px; stroke-width: 2.5; }
+#controles .icono { width: 26px; height: 26px; }
