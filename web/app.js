@@ -61,11 +61,11 @@ const capaProvincias = L.featureGroup();           // provincias de RD (ocultas 
 
 // ===== Elegir y limpiar zona =====
 function elegirZona(nombre, capa) {
-    if (capaElegida) capaElegida.setStyle(estiloBase(capaElegida));
+  if (capaElegida) capaElegida.setStyle(estiloBase(capaElegida));
 
   zonaElegida = nombre;
   capaElegida = capa;
-      capa.setStyle(capa.estiloBase ? { ...capa.estiloBase, color: '#fff', weight: 3, dashArray: null } : ESTILO_ELEGIDA);
+  capa.setStyle(capa.estiloBase ? { ...capa.estiloBase, color: '#fff', weight: 3, dashArray: null } : ESTILO_ELEGIDA);
 
   const texto = document.getElementById('zona-elegida');
   texto.textContent = nombreBonito(nombre);
@@ -76,7 +76,7 @@ function elegirZona(nombre, capa) {
 }
 
 function limpiarSeleccion() {
-    if (capaElegida) capaElegida.setStyle(estiloBase(capaElegida));
+  if (capaElegida) capaElegida.setStyle(estiloBase(capaElegida));
   zonaElegida = null;
   capaElegida = null;
 
@@ -87,8 +87,8 @@ function limpiarSeleccion() {
   document.getElementById('aviso-texto').textContent =
     modo === 'pais' ? 'Haz clic en un país para empezar' : 'Haz clic en una region';
   document.getElementById('aviso').hidden = false;
-    document.getElementById('analizar').disabled = true;
-      document.getElementById('resultados').hidden = true;
+  document.getElementById('analizar').disabled = true;
+  document.getElementById('resultados').hidden = true;
 }
 
 // ===== Dibujar un GeoJSON =====
@@ -108,7 +108,7 @@ function crearCapa(geojson, tipo) {
 
       // efectos del mouse
       capa.on('mouseover', () => { if (capa !== capaElegida) capa.setStyle(ESTILO_HOVER); });
-            capa.on('mouseout',  () => { if (capa !== capaElegida) capa.setStyle(estiloBase(capa)); });
+      capa.on('mouseout',  () => { if (capa !== capaElegida) capa.setStyle(estiloBase(capa)); });
       capa.on('click',     () => elegirZona(nombre, capa));
     }
   });
@@ -122,21 +122,21 @@ function cambiarModo(nuevoModo) {
   // botón activo
   document.querySelectorAll('.opcion').forEach(boton =>
     boton.classList.toggle('activa', boton.dataset.modo === modo)
-    
   );
 
   // mostrar una capa y esconder la otra
   if (modo === 'provincias') {
     mapa.removeLayer(capaPaises);
     capaProvincias.addTo(mapa);
-    mapa.fitBounds(capaProvincias.getBounds(), MARGEN_ZOOM);
+    // si las provincias no cargaron, getBounds() de un grupo vacío lanza error
+    if (capaProvincias.getLayers().length) mapa.fitBounds(capaProvincias.getBounds(), MARGEN_ZOOM);
   } else {
     mapa.removeLayer(capaProvincias);
     capaPaises.addTo(mapa);
     mapa.setView(CENTRO_CARIBE, ZOOM_INICIAL);
   }
   limpiarColores();
-  llenarVariables()
+  llenarVariables();
   limpiarSeleccion();
   actualizarMapa();
 }
@@ -154,7 +154,6 @@ const normalizar = texto =>
 // Llena las sugerencias con países y provincias
 function llenarBuscador() {
   document.getElementById('zonas').innerHTML = Object.keys(capasPorNombre)
-    .filter(nombre => capasPorNombre[nombre].tipo === 'pais')
     .map(nombre => `<option value="${nombreBonito(nombre)}">`)
     .join('');
 }
@@ -165,9 +164,8 @@ function buscar() {
   const texto = normalizar(input.value);
   if (!texto) return;
 
-    const nombre = Object.keys(capasPorNombre).find(n =>
-    capasPorNombre[n].tipo === 'pais' &&
-    (normalizar(nombreBonito(n)).includes(texto) || normalizar(n).includes(texto))
+  const nombre = Object.keys(capasPorNombre).find(n =>
+    normalizar(nombreBonito(n)).includes(texto) || normalizar(n).includes(texto)
   );
 
   if (!nombre) {
@@ -246,6 +244,59 @@ const VARIABLES = [
     descripcion: 'Qué tan mojada está la capa de arriba del suelo. Importa para los cultivos y las sequías.' }
 ];
 
+
+// Qué significa para la gente cada cambio
+const IMPACTOS = {
+  NDVI: {
+    sube: 'Más vegetación protege el suelo de la erosión, ayuda a guardar agua y absorbe CO₂. Puede deberse a reforestación o a más lluvia.',
+    baja: 'Menos vegetación puede indicar deforestación, sequía o crecimiento de las ciudades. El suelo se erosiona más y aumentan los deslizamientos.',
+    porque: 'los bosques y cultivos protegen el agua, el suelo y la comida del país'
+  },
+  AREA_QUEMADA: {
+    sube: 'Más incendios significa pérdida de bosques y cultivos, humo que afecta la salud y suelos desprotegidos cuando llegan las lluvias.',
+    baja: 'Menos área quemada es buena señal: se pierden menos bosques y hay menos humo en el aire.',
+    porque: 'los incendios pueden crecer rápido en temporadas secas'
+  },
+  SST: {
+    sube: 'Un mar más caliente blanquea los corales, afecta la pesca y le da más energía a los huracanes.',
+    baja: 'Un mar más frío puede cambiar dónde están los peces y le da menos energía a los huracanes.',
+    porque: 'la temperatura del mar influye en los huracanes, los corales y la pesca'
+  },
+  PRECIPITACION: {
+    sube: 'Más lluvia puede llenar presas y acuíferos, pero también aumenta el riesgo de inundaciones y deslizamientos.',
+    baja: 'Menos lluvia es riesgo de sequía: menos agua para tomar, para la agricultura y para las hidroeléctricas.',
+    porque: 'de la lluvia dependen el agua potable, la agricultura y la electricidad'
+  },
+  TEMP_AIRE: {
+    sube: 'Más calor aumenta los golpes de calor, el uso de aire acondicionado (y la factura de luz) y el estrés en cultivos y animales. También puede favorecer al mosquito del dengue.',
+    baja: 'Temperaturas más bajas reducen el estrés por calor, aunque los cambios bruscos también afectan a los cultivos.',
+    porque: 'la temperatura afecta la salud, la energía y la agricultura'
+  },
+  T2M_MAX: {
+    sube: 'Días más calurosos aumentan el riesgo de golpes de calor, sobre todo en niños y adultos mayores, y hacen más difícil trabajar al aire libre.',
+    baja: 'Máximas más bajas significan menos días de calor extremo.',
+    porque: 'los días de calor extremo son peligrosos para la salud'
+  },
+  HUMEDAD_SUELO: {
+    sube: 'Un suelo más húmedo favorece los cultivos, pero si se satura aumenta el riesgo de inundaciones y deslizamientos.',
+    baja: 'Un suelo más seco es señal de sequía: las plantas sufren, bajan las cosechas y aumenta el riesgo de incendios.',
+    porque: 'la humedad del suelo decide si los cultivos tienen agua'
+  }
+};
+// los códigos de POWER usan los mismos textos
+IMPACTOS.T2M = IMPACTOS.TEMP_AIRE;
+IMPACTOS.PRECTOTCORR = IMPACTOS.PRECIPITACION;
+IMPACTOS.GWETROOT = IMPACTOS.HUMEDAD_SUELO;
+
+function textoImpacto(d) {
+  const impacto = IMPACTOS[d.variable];
+  if (!impacto) return null;
+  if (!d.significativo) {
+    return `Por ahora no hay un cambio claro, pero vale la pena seguir vigilándola porque ${impacto.porque}.`;
+  }
+  return d.cambio_total >= 0 ? impacto.sube : impacto.baja;
+}
+
 const infoVariable = id => VARIABLES.find(v => v.id === id);
 
 function mostrarDescripcion() {
@@ -264,7 +315,7 @@ function llenarVariables() {
 
   // si la que estaba elegida sigue disponible, se queda
   if (disponibles.some(v => v.id === actual)) select.value = actual;
-    mostrarDescripcion();
+  mostrarDescripcion();
 }
 llenarVariables();
 
@@ -285,7 +336,6 @@ function validar({ desde, hasta }) {
 
 // ===== Resultados =====
 
-// DATOS FALSOS con el formato de GET /api/analisis del contrato
 const ANIO_PROYECCION = 2030;
 
 const USAR_SERVIDOR = false;   // false = volver a los datos falsos
@@ -353,13 +403,6 @@ async function obtenerAnalisis(params) {
 const nombreVariable = id => infoVariable(id)?.nombre ?? id;
 const conSigno = (n, dec) => `${n >= 0 ? '+' : ''}${n.toFixed(dec)}`;
 
-// Alto que queda entre el inicio de la gráfica y el borde de abajo del panel
-function altoDisponible() {
-  const panel = document.getElementById('resultados').getBoundingClientRect();
-  const grafica = document.getElementById('grafica').getBoundingClientRect();
-  return Math.max(180, panel.bottom - grafica.top - 14);
-}
-
 function explicarP(p) {
   if (p < 0.01) return 'casi seguro que es un cambio real';
   if (p < 0.05) return 'probablemente es un cambio real';
@@ -376,27 +419,31 @@ function mostrarResultados(d) {
   const sig = document.getElementById('t-sig');
   sig.textContent = d.significativo ? 'Sí' : 'No';
   sig.className = clase;
-    document.getElementById('t-p').textContent = `p = ${d.p.toFixed(3)} · ${explicarP(d.p)}`;
+  document.getElementById('t-p').textContent = `p = ${d.p.toFixed(3)} · ${explicarP(d.p)}`;
 
   const decada = document.getElementById('t-decada');
   decada.textContent = `${conSigno(d.pendiente_decada, 3)} ${unidad}`;
   decada.className = clase;
 
   const pct = document.getElementById('t-pct');
-    pct.textContent = d.cambio_pct == null
+  pct.textContent = d.cambio_pct == null
     ? '—'
     : `${d.cambio_total >= 0 ? '↑' : '↓'} ${conSigno(d.cambio_pct, 1)} %`;
   pct.className = clase;
 
   const hayProyeccion = d.proyeccion?.valores?.length > 0;
   let texto = d.resumen;
-    if (!d.significativo) texto += ' Aunque no es significativo, con más años de datos podría llegar a serlo.';
+  if (!d.significativo) texto += ' Aunque no es significativo, con más años de datos podría llegar a serlo.';
   if (hayProyeccion) {
     const ultimoAnio = d.proyeccion.valores.slice(-12);
     const promedio = ultimoAnio.reduce((a, b) => a + b, 0) / ultimoAnio.length;
-        texto += ` Si la tendencia sigue igual, en ${ANIO_PROYECCION} el promedio sería de ${promedio.toFixed(2)}${unidad ? ' ' + unidad : ''}.`;
+    texto += ` Si la tendencia sigue igual, en ${ANIO_PROYECCION} el promedio sería de ${promedio.toFixed(2)}${unidad ? ' ' + unidad : ''}.`;
   }
   document.getElementById('resumen').textContent = texto;
+
+    const impacto = textoImpacto(d);
+  document.getElementById('impacto').hidden = !impacto;
+  document.getElementById('impacto-texto').textContent = impacto ?? '';
 
   // se muestra antes de dibujar para que la gráfica tome el tamaño real
   document.getElementById('resultados').hidden = false;
@@ -413,7 +460,7 @@ function mostrarResultados(d) {
   }
 
   Plotly.newPlot('grafica', lineas, {
-        height: altoDisponible(),
+    height: 240,
     autosize: true,
     paper_bgcolor: 'rgba(0,0,0,0)', plot_bgcolor: 'rgba(0,0,0,0)',
     font: { color: '#fff', size: 13 },
@@ -480,7 +527,7 @@ function pintarMapa(datos, { variable, desde, hasta }) {
         `${nombreBonito(nombre)} · ${conSigno(dato.pendiente_decada, 3)} ${unidad}/década`
       );
     }
-        capa.setStyle(capa === capaElegida
+    capa.setStyle(capa === capaElegida
       ? { ...capa.estiloBase, color: '#fff', weight: 3, dashArray: null }
       : capa.estiloBase);
   });
@@ -530,7 +577,7 @@ document.getElementById('analizar').addEventListener('click', async () => {
     mostrarResultados(await obtenerAnalisis(params));
   } catch (e) {
     console.error(e);
-        alert(e instanceof TypeError
+    alert(e instanceof TypeError
       ? 'No se pudo conectar con el servidor. ¿Está corriendo app.py?'
       : e.message);
   } finally {
