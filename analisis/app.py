@@ -33,7 +33,7 @@ def api_analisis():
     zona = request.args.get("zona")
     variable = request.args.get("variable", "T2M").upper()
     desde = request.args.get("desde", "2001")
-    hasta = request.args.get("hasta", "2024")
+    hasta = request.args.get("hasta", "2025")
 
     if not zona:
         return jsonify({"error": "Falta indicar la zona."}), 400
@@ -59,15 +59,23 @@ def api_analisis():
 
 @app.get("/api/mapa")
 def api_mapa():
+    pais = request.args.get("pais", "").upper()
     variable = request.args.get("variable", "T2M").upper()
     desde = request.args.get("desde", "2001")
-    hasta = request.args.get("hasta", "2024")
+    hasta = request.args.get("hasta", "2025")
 
+    if not pais:
+        return jsonify({"error": "Falta indicar el país."}), 400
     if variable not in VARIABLES_DISPONIBLES:
         return jsonify({"error": MENSAJE_VARIABLES}), 400
 
     resultados = {}
     for zona, variables in series.items():
+        info_zona = zonas.get(zona, {})
+
+        if info_zona.get("pais") != pais or info_zona.get("nivel") != "region":
+             continue
+
         serie = variables.get(variable, [])
         try:
             analisis_zona = analizar(

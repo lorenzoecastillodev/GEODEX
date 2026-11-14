@@ -64,15 +64,17 @@ def analizar(serie, desde, hasta, zona="zona", variable="NDVI"):
 
     duracion_anios = (len(valores) - 1) / 12
     cambio_total = pendiente_anual * duracion_anios
-    if valores[0] == 0:
+    
+    tendencia = [ 
+        float(resultado.intercept + pendiente_anual * (i / 12))
+        for i in range (len(valores))
+    ]
+
+    base = tendencia[0]
+    if base == 0:
         cambio_pct = None
     else:
-        cambio_pct = (cambio_total / abs(valores[0])) * 100
-
-    tendencia = [
-        float(resultado.intercept + pendiente_anual * (i / 12))
-        for i in range(len(valores))
-    ]
+        cambio_pct = (cambio_total / abs(base)) * 100
 
     nombres_variables = {
         "NDVI": "La vegetación",
