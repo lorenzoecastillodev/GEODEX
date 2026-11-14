@@ -4,31 +4,27 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>LUNYDE – Detective de tendencias del Caribe</title>
-  <!-- Leaflet (por ahora desde internet; al final lo pasamos a lib/) -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
   <link rel="stylesheet" href="estilos.css">
 </head>
 <body>
 
-  <!-- Mapa a pantalla completa, de fondo -->
   <div id="mapa"></div>
 
-  <!-- Barra superior -->
   <header id="barra">
     <div class="marca">
       <h1>LUNYDE</h1>
-      <p>¿Cambió el Caribe entre 2001 y 2025?</p>
+      <p>¿Cambió el Caribe entre 2001 y 2024?</p>
     </div>
     <div class="buscador">
-      <input id="buscador" list="zonas" placeholder="Busca un país o provincia...">
+      <input id="buscador" list="zonas" placeholder="Busca un país...">
       <datalist id="zonas"></datalist>
       <button id="btn-buscar" title="Buscar">
-  <svg class="icono" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><line x1="16.5" y1="16.5" x2="21" y2="21"/></svg>
-</button>
+        <svg class="icono" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><line x1="16.5" y1="16.5" x2="21" y2="21"/></svg>
+      </button>
     </div>
   </header>
 
-  <!-- Panel flotante de la izquierda -->
   <aside id="panel">
     <section class="paso">
       <h2><span class="num">1</span> Elige una zona:</h2>
@@ -39,43 +35,99 @@
       <h2><span class="num">2</span> ¿Cómo quieres verla?</h2>
       <div class="segmentado">
         <button class="opcion activa" data-modo="pais">País completo</button>
-        <button class="opcion" data-modo="provincias">Por provincias</button>
+        <button class="opcion" data-modo="provincias">Por regiones</button>
       </div>
       <p class="nota">
-  <svg class="icono" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="11" x2="12" y2="16"/><line x1="12" y1="8" x2="12" y2="8"/></svg>
-  Por ahora solo República Dominicana
-</p>
+        <svg class="icono" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="11" x2="12" y2="16"/><line x1="12" y1="8" x2="12" y2="8"/></svg>
+        Por ahora solo República Dominicana
+      </p>
+    </section>
+
+    <section class="paso">
+      <h2><span class="num">3</span> ¿Qué quieres analizar?</h2>
+      <select id="variable"></select>
+      <p id="desc-variable" class="desc-variable"></p>
+      <div class="anios">
+        <label>Desde <select id="desde"></select></label>
+        <label>Hasta <select id="hasta"></select></label>
+      </div>
     </section>
 
     <section class="zona-elegida">
       <h3>
-  <svg class="icono" viewBox="0 0 24 24"><path d="M12 21s-7-6.5-7-12a7 7 0 0 1 14 0c0 5.5-7 12-7 12z"/><circle cx="12" cy="9" r="2.5"/></svg>
-  Zona elegida:
-</h3>
+        <svg class="icono" viewBox="0 0 24 24"><path d="M12 21s-7-6.5-7-12a7 7 0 0 1 14 0c0 5.5-7 12-7 12z"/><circle cx="12" cy="9" r="2.5"/></svg>
+        Zona elegida:
+      </h3>
       <p id="zona-elegida" class="vacia">Ninguna todavía</p>
     </section>
+
+    <button id="analizar" disabled>Analizar</button>
   </aside>
 
-  <!-- Aviso de abajo -->
-  <div id="aviso">
-  <svg class="icono" viewBox="0 0 24 24"><path d="M4 4l7 17 2.5-7.5L21 11z"/></svg>
-  Haz clic en un país para empezar
+  <section id="resultados" hidden>
+    <header class="res-cabecera">
+      <h2 id="res-titulo"></h2>
+      <button id="cerrar-resultados" title="Cerrar">
+        <svg class="icono" viewBox="0 0 24 24"><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg>
+      </button>
+    </header>
+    <div class="tarjetas">
+      <div class="tarjeta">
+        <span>¿Cambio significativo?
+          <button class="btn-ayuda" data-ayuda="¿El cambio es real o pudo ser casualidad? Usamos la prueba de Mann-Kendall, que no se deja engañar por las estaciones del año. Si p es menor que 0.05, decimos que el cambio es significativo.">?</button>
+        </span>
+        <b id="t-sig"></b><small id="t-p"></small>
+      </div>
+      <div class="tarjeta">
+        <span>Cambio por década
+          <button class="btn-ayuda" data-ayuda="Cuánto sube o baja la variable cada 10 años si se sigue la línea de tendencia (pendiente de Sen).">?</button>
+        </span>
+        <b id="t-decada"></b>
+      </div>
+      <div class="tarjeta">
+        <span>Cambio total
+          <button class="btn-ayuda" data-ayuda="Cuánto cambió en todo el periodo elegido, comparado con cómo estaba al inicio.">?</button>
+        </span>
+        <b id="t-pct"></b>
+      </div>
+    </div>
+    <p id="resumen"></p>
+    <div id="impacto" class="impacto" hidden>
+  <b>¿Cómo nos afecta?</b>
+  <span id="impacto-texto"></span>
 </div>
 
-  <!-- Botones de zoom propios -->
+    <div id="grafica"></div>
+  </section>
+
+  <div id="aviso">
+    <svg class="icono" viewBox="0 0 24 24"><path d="M4 4l7 17 2.5-7.5L21 11z"/></svg>
+    <span id="aviso-texto">Haz clic en un país para empezar</span>
+  </div>
+
+  <div id="leyenda" hidden>
+    <b id="leyenda-titulo"></b>
+    <div><span class="muestra" style="background:#2ecc71"></span>Aumentó</div>
+    <div><span class="muestra" style="background:#e74c3c"></span>Disminuyó</div>
+    <div><span class="muestra" style="background:#8a9bb5"></span>Sin cambio significativo</div>
+    <div><span class="muestra vacia"></span>Sin datos</div>
+    <small>Más intenso = cambio más fuerte</small>
+  </div>
+
   <div id="controles">
-  <button id="zoom-mas" title="Acercar">
-    <svg class="icono" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-  </button>
-  <button id="zoom-menos" title="Alejar">
-    <svg class="icono" viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/></svg>
-  </button>
-  <button id="centrar" title="Volver al Caribe">
-    <svg class="icono" viewBox="0 0 24 24"><circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="2.5"/><line x1="12" y1="1" x2="12" y2="5"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="1" y1="12" x2="5" y2="12"/><line x1="19" y1="12" x2="23" y2="12"/></svg>
-  </button>
-</div>
+    <button id="zoom-mas" title="Acercar">
+      <svg class="icono" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+    </button>
+    <button id="zoom-menos" title="Alejar">
+      <svg class="icono" viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/></svg>
+    </button>
+    <button id="centrar" title="Volver al Caribe">
+      <svg class="icono" viewBox="0 0 24 24"><circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="2.5"/><line x1="12" y1="1" x2="12" y2="5"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="1" y1="12" x2="5" y2="12"/><line x1="19" y1="12" x2="23" y2="12"/></svg>
+    </button>
+  </div>
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
   <script src="app.js"></script>
 </body>
 </html>
