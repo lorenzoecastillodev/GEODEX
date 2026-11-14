@@ -6,15 +6,18 @@ from analizar import analizar
 
 
 app = Flask(__name__)
-VARIABLES_DISPONIBLES = ("PRECIPITACION", "TEMP_AIRE", "SST")
-MENSAJE_VARIABLES = "La variable debe ser PRECIPITACION, TEMP_AIRE o SST."
-ruta_datos = Path(__file__).with_name("series.json")
+VARIABLES_DISPONIBLES = ("T2M", "T2M_MAX", "PRECTOTCORR", "GWETROOT", "TEMP_MAR")
+MENSAJE_VARIABLES = "La variable debe ser una de las siguientes: T2M, T2M_MAX, PRECTOTCORR, GWETROOT, TEMP_MAR."
+ruta_datos = Path(__file__).parent.parent / "datos" / "series.json"
+ruta_zonas = Path(__file__).parent.parent / "datos" / "zonas.json"
 
 # Leer las series al iniciar el servidor.
 
 with open(ruta_datos, "r", encoding="utf-8") as archivo:
     series = json.load(archivo)
 
+with open(ruta_zonas, "r", encoding="utf-8") as archivo:
+    zonas = json.load(archivo)
 
 # Permitir que la web consulte este servidor durante la demo local.
 @app.after_request
@@ -28,7 +31,7 @@ def agregar_cors(respuesta):
 @app.get("/api/analisis")
 def api_analisis():
     zona = request.args.get("zona")
-    variable = request.args.get("variable", "PRECIPITACION").upper()
+    variable = request.args.get("variable", "T2M").upper()
     desde = request.args.get("desde", "2001")
     hasta = request.args.get("hasta", "2024")
 
@@ -56,7 +59,7 @@ def api_analisis():
 
 @app.get("/api/mapa")
 def api_mapa():
-    variable = request.args.get("variable", "PRECIPITACION").upper()
+    variable = request.args.get("variable", "T2M").upper()
     desde = request.args.get("desde", "2001")
     hasta = request.args.get("hasta", "2024")
 
