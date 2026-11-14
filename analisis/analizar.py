@@ -79,7 +79,7 @@ def analizar(serie, desde, hasta, zona="zona", variable="NDVI"):
         "LST": "La temperatura de superficie",
         "PRECIPITACION": "La precipitación",
         "TEMP_AIRE": "La temperatura del aire",
-        "TEMP_MAR": "La temperatura del mar",
+        "SST": "La temperatura del mar",
     }
     nombre_variable = nombres_variables.get(variable, variable)
 

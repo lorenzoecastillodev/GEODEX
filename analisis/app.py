@@ -6,8 +6,8 @@ from analizar import analizar
 
 
 app = Flask(__name__)
-VARIABLES_DISPONIBLES = ("PRECIPITACION", "TEMP_AIRE", "TEMP_MAR")
-MENSAJE_VARIABLES = "La variable debe ser PRECIPITACION, TEMP_AIRE o TEMP_MAR."
+VARIABLES_DISPONIBLES = ("PRECIPITACION", "TEMP_AIRE", "SST")
+MENSAJE_VARIABLES = "La variable debe ser PRECIPITACION, TEMP_AIRE o SST."
 ruta_datos = Path(__file__).with_name("series.json")
 
 # Leer las series al iniciar el servidor.
