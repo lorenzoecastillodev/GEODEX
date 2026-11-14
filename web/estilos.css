@@ -9,8 +9,27 @@
 * { box-sizing: border-box; }
 body { margin: 0; font-family: system-ui, Inter, sans-serif; color: #fff; background: var(--marino); }
 
+/* ===== Mapa ===== */
 #mapa { position: fixed; inset: 0; background: var(--marino); z-index: 0; }
 
+.leaflet-tooltip.etiqueta {
+  background: var(--marino); color: #fff;
+  border: 2px solid var(--turquesa); border-radius: 999px;
+  padding: 6px 14px; font-size: 15px; font-weight: 700;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.5);
+}
+.leaflet-tooltip.etiqueta::before { display: none; }
+.leaflet-interactive { cursor: pointer; }
+.leaflet-interactive:focus { outline: none; }
+
+/* ===== Íconos ===== */
+.icono {
+  width: 1.2em; height: 1.2em; flex-shrink: 0;
+  fill: none; stroke: currentColor; stroke-width: 2;
+  stroke-linecap: round; stroke-linejoin: round;
+}
+
+/* ===== Barra superior ===== */
 #barra {
   position: fixed; top: 0; left: 0; right: 0; height: 90px; z-index: 1000;
   display: flex; align-items: center; gap: 60px; padding: 0 32px;
@@ -19,84 +38,19 @@ body { margin: 0; font-family: system-ui, Inter, sans-serif; color: #fff; backgr
 .marca h1 { margin: 0; font-size: 36px; font-weight: 800; letter-spacing: 1px; }
 .marca p { margin: 2px 0 0; font-size: 16px; opacity: 0.9; }
 
-.buscador { flex: 1; max-width: 780px; display: flex; border: 2px solid var(--turquesa); border-radius: 999px; overflow: hidden; }
+.buscador {
+  flex: 1; max-width: 780px; display: flex; overflow: hidden;
+  border: 2px solid var(--turquesa); border-radius: 999px; transition: border-color 0.2s;
+}
 .buscador input {
   flex: 1; background: transparent; border: none; outline: none;
   color: #fff; font-size: 18px; padding: 14px 24px; font-style: italic;
 }
-.buscador button { width: 72px; border: none; background: var(--turquesa); font-size: 22px; cursor: pointer; }
-
-#panel {
-  position: fixed; top: 120px; left: 20px; width: 340px; z-index: 1000;
-  background: rgba(19, 41, 77, 0.95); border: 1px solid rgba(255,255,255,0.15);
-  border-radius: 14px; padding: 22px; box-shadow: 0 12px 40px rgba(0,0,0,0.5);
-  max-height: calc(100vh - 140px); overflow-y: auto;
+.buscador button {
+  width: 72px; border: none; background: var(--turquesa); color: var(--marino); cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
 }
-.paso { padding-bottom: 18px; margin-bottom: 12px; border-bottom: 1px solid rgba(255,255,255,0.12); }
-.paso h2 { display: flex; align-items: center; gap: 12px; font-size: 21px; margin: 0 0 10px; }
-.num {
-  width: 34px; height: 34px; border-radius: 50%; background: var(--turquesa); color: var(--marino);
-  display: inline-flex; align-items: center; justify-content: center; font-size: 17px;
-}
-.ayuda, .nota { margin: 0; font-style: italic; font-size: 15px; opacity: 0.9; }
-.nota { margin-top: 12px; }
-
-.segmentado { display: flex; gap: 10px; }
-.opcion {
-  flex: 1; padding: 12px; border-radius: 999px; font-size: 16px; font-weight: 600; cursor: pointer;
-  background: transparent; color: #fff; border: 2px solid rgba(255,255,255,0.7);
-}
-.opcion.activa { background: var(--turquesa); color: var(--marino); border-color: var(--turquesa); }
-
-.zona-elegida { background: var(--marino); border: 1px solid rgba(255,255,255,0.12); border-radius: 12px; padding: 14px 18px; }
-.zona-elegida h3 { margin: 0 0 8px; font-size: 18px; }
-.zona-elegida p { margin: 0; font-size: 20px; font-weight: 700; text-align: center; color: var(--turquesa); }
-.zona-elegida p.vacia { color: var(--gris); font-weight: 400; }
-
-#aviso {
-  position: fixed; bottom: 36px; left: 50%; transform: translateX(-50%); z-index: 1000;
-  background: var(--turquesa); color: var(--marino); font-weight: 700; font-size: 20px;
-  padding: 14px 32px; border-radius: 999px; box-shadow: 0 8px 24px rgba(0,0,0,0.4);
-}
-
-#controles { position: fixed; right: 20px; bottom: 36px; z-index: 1000; display: flex; flex-direction: column; gap: 10px; }
-#controles button {
-  width: 56px; height: 56px; border-radius: 10px; cursor: pointer;
-  background: var(--marino); color: var(--turquesa); border: 2px solid var(--turquesa); font-size: 26px;
-}
-#controles button:hover { background: var(--turquesa); color: var(--marino); }
-
-.icono {
-  width: 1.2em; height: 1.2em; flex-shrink: 0;
-  fill: none; stroke: currentColor; stroke-width: 2;
-  stroke-linecap: round; stroke-linejoin: round;
-}
-
-.zona-elegida h3, .nota, #aviso { display: flex; align-items: center; gap: 8px; }
-.zona-elegida h3 .icono { color: var(--turquesa); }
-
-.buscador button, #controles button { display: flex; align-items: center; justify-content: center; }
-.buscador button { color: var(--marino); }
 .buscador button .icono { width: 26px; height: 26px; stroke-width: 2.5; }
-#controles .icono { width: 26px; height: 26px; }
-
-/* Tooltip de Leaflet con el nombre del país */
-.leaflet-tooltip.etiqueta {
-  background: var(--marino);
-  color: #fff;
-  border: 2px solid var(--turquesa);
-  border-radius: 999px;
-  padding: 6px 14px;
-  font-size: 15px;
-  font-weight: 700;
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.5);
-}
-.leaflet-tooltip.etiqueta::before { display: none; } /* quitar la flechita */
-
-.leaflet-interactive { cursor: pointer; }
-
-/* ===== Buscador: zona no encontrada ===== */
-.buscador { transition: border-color 0.2s; }
 .buscador.error { border-color: #e74c3c; animation: temblar 0.3s; }
 @keyframes temblar {
   0%, 100% { transform: translateX(0); }
@@ -104,19 +58,53 @@ body { margin: 0; font-family: system-ui, Inter, sans-serif; color: #fff; backgr
   75% { transform: translateX(6px); }
 }
 
-.opcion-var {
-  flex: 1; padding: 12px; border-radius: 999px; font-size: 16px; font-weight: 600; cursor: pointer;
+/* ===== Panel izquierdo ===== */
+#panel {
+  position: fixed; top: 120px; left: 20px; width: 340px; z-index: 1000;
+  max-height: calc(100vh - 140px); overflow-y: auto;
+  background: rgba(19, 41, 77, 0.95); border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 14px; padding: 22px; box-shadow: 0 12px 40px rgba(0,0,0,0.5);
+  scrollbar-width: thin; scrollbar-color: rgba(31, 182, 166, 0.5) transparent;
+}
+#panel::-webkit-scrollbar { width: 8px; }
+#panel::-webkit-scrollbar-track { background: transparent; }
+#panel::-webkit-scrollbar-thumb { background: rgba(31, 182, 166, 0.5); border-radius: 999px; }
+
+.paso { padding-bottom: 12px; margin-bottom: 12px; border-bottom: 1px solid rgba(255,255,255,0.12); }
+.paso h2 { display: flex; align-items: center; gap: 12px; font-size: 21px; margin: 0 0 10px; }
+.num {
+  width: 34px; height: 34px; border-radius: 50%; background: var(--turquesa); color: var(--marino);
+  display: inline-flex; align-items: center; justify-content: center; font-size: 17px;
+}
+.ayuda, .nota { margin: 0; font-style: italic; font-size: 15px; opacity: 0.9; }
+.nota { margin-top: 12px; display: flex; align-items: center; gap: 8px; }
+
+.segmentado { display: flex; gap: 10px; }
+.opcion {
+  flex: 1; padding: 10px 8px; border-radius: 999px; font-size: 15px; font-weight: 600;
+  white-space: nowrap; cursor: pointer;
   background: transparent; color: #fff; border: 2px solid rgba(255,255,255,0.7);
 }
-.opcion-var.activa { background: var(--turquesa); color: var(--marino); border-color: var(--turquesa); }
+.opcion.activa { background: var(--turquesa); color: var(--marino); border-color: var(--turquesa); }
+
+#variable, .anios select {
+  padding: 10px; border-radius: 8px; font-size: 16px;
+  background: var(--marino); color: #fff; border: 1px solid rgba(255,255,255,0.3);
+}
+#variable { width: 100%; }
+.desc-variable { margin: 8px 0 0; font-size: 14px; line-height: 1.4; opacity: 0.85; }
 
 .anios { display: flex; gap: 10px; margin-top: 12px; }
 .anios label { flex: 1; display: flex; flex-direction: column; gap: 4px; font-size: 14px; opacity: 0.9; }
-.anios select, #variable {
-  padding: 10px; border-radius: 8px; font-size: 16px;
-  background: var(--marino); color: #fff; border: 1px solid rgba(255,255,255,0.3);
-  #variable { width: 100%; }
+
+.zona-elegida {
+  background: var(--marino); border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 12px; padding: 14px 18px;
 }
+.zona-elegida h3 { margin: 0 0 8px; font-size: 18px; display: flex; align-items: center; gap: 8px; }
+.zona-elegida h3 .icono { color: var(--turquesa); }
+.zona-elegida p { margin: 0; font-size: 20px; font-weight: 700; text-align: center; color: var(--turquesa); }
+.zona-elegida p.vacia { color: var(--gris); font-weight: 400; }
 
 #analizar {
   width: 100%; margin-top: 16px; padding: 16px; border: none; border-radius: 12px; cursor: pointer;
@@ -124,53 +112,81 @@ body { margin: 0; font-family: system-ui, Inter, sans-serif; color: #fff; backgr
 }
 #analizar:disabled { opacity: 0.4; cursor: not-allowed; }
 
-#resultados {
-  position: fixed; left: 380px; right: 100px; bottom: 20px; height: 48vh; z-index: 1000;
-  background: rgba(19, 41, 77, 0.97); border: 1px solid rgba(255,255,255,0.15);
-  border-radius: 14px; padding: 16px 20px; box-shadow: 0 12px 40px rgba(0,0,0,0.5);
+/* ===== Aviso de abajo ===== */
+#aviso {
+  position: fixed; bottom: 36px; left: 50%; transform: translateX(-50%); z-index: 1000;
+  display: flex; align-items: center; gap: 8px;
+  background: var(--turquesa); color: var(--marino); font-weight: 700; font-size: 20px;
+  padding: 14px 32px; border-radius: 999px; box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+}
+#aviso[hidden] { display: none; }
+
+/* ===== Botones de zoom ===== */
+#controles {
+  position: fixed; right: 20px; bottom: 36px; z-index: 1000;
   display: flex; flex-direction: column; gap: 10px;
+}
+#controles button {
+  width: 56px; height: 56px; border-radius: 10px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  background: var(--marino); color: var(--turquesa); border: 2px solid var(--turquesa);
+}
+#controles button:hover { background: var(--turquesa); color: var(--marino); }
+#controles .icono { width: 26px; height: 26px; }
+
+/* ===== Leyenda del mapa de colores ===== */
+#leyenda {
+  position: fixed; right: 20px; top: 135px; z-index: 1000;
+  background: rgba(19, 41, 77, 0.95); border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 999px; padding: 8px 18px; font-size: 13px;
+  display: flex; align-items: center; gap: 14px;
+}
+#leyenda[hidden] { display: none; }
+#leyenda div { display: flex; align-items: center; gap: 8px; }
+#leyenda small { opacity: 0.7; }
+.muestra { width: 16px; height: 16px; border-radius: 4px; }
+.muestra.vacia { border: 1px dashed #fff; }
+
+/* ===== Panel de resultados ===== */
+#resultados {
+  position: fixed; left: 380px; right: 100px; bottom: 20px; height: 58vh; z-index: 1000;
+  background: rgba(19, 41, 77, 0.97); border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 14px; padding: 12px 18px; box-shadow: 0 12px 40px rgba(0,0,0,0.5);
+  display: flex; flex-direction: column; gap: 6px;
 }
 #resultados[hidden] { display: none; }
 
 .res-cabecera { display: flex; justify-content: space-between; align-items: center; }
-.res-cabecera h2 { margin: 0; font-size: 20px; }
+.res-cabecera h2 { margin: 0; font-size: 18px; }
 #cerrar-resultados { background: none; border: none; color: #fff; cursor: pointer; }
 #cerrar-resultados .icono { width: 26px; height: 26px; }
 
 .tarjetas { display: flex; gap: 12px; }
 .tarjeta {
   flex: 1; background: var(--marino); border: 1px solid rgba(255,255,255,0.12);
-  border-radius: 10px; padding: 10px 14px; display: flex; flex-direction: column; gap: 2px;
+  border-radius: 10px; padding: 6px 12px; display: flex; flex-direction: column; gap: 2px;
 }
 .tarjeta span { font-size: 14px; opacity: 0.8; }
-.tarjeta b { font-size: 26px; }
+.tarjeta b { font-size: 22px; }
 .tarjeta small { font-size: 13px; opacity: 0.7; }
 .sube { color: #2ecc71; }
 .baja { color: #e74c3c; }
 .neutro { color: var(--gris); }
 
-#resumen { margin: 0; font-style: italic; font-size: 17px; }
-#grafica { flex: 1; min-height: 0; }
+#resumen { margin: 0; font-style: italic; font-size: 15px; }
+#grafica { flex: 1; min-height: 220px; overflow: hidden; }
 
-/* 1. Que hidden funcione en el aviso */
-#aviso[hidden] { display: none; }
-
-/* 2. Más espacio para la gráfica */
-#resultados { height: 58vh; padding: 12px 18px; gap: 6px; }
-.tarjeta { padding: 6px 12px; }
-.tarjeta b { font-size: 22px; }
-.res-cabecera h2 { font-size: 18px; }
-#resumen { font-size: 15px; }
-#grafica { min-height: 220px; }
-
-/* 3. Barra de scroll del panel con los colores de la app */
-#panel::-webkit-scrollbar { width: 8px; }
-#panel::-webkit-scrollbar-track { background: transparent; }
-#panel::-webkit-scrollbar-thumb { background: rgba(31, 182, 166, 0.5); border-radius: 999px; }
-#panel { scrollbar-width: thin; scrollbar-color: rgba(31, 182, 166, 0.5) transparent; }
-
-.opcion { font-size: 15px; padding: 10px 8px; white-space: nowrap; }
-
-.opcion { font-size: 15px; padding: 10px 8px; white-space: nowrap; }
-
-#grafica { overflow: hidden; }
+/* ===== Botón "?" con explicación ===== */
+.btn-ayuda {
+  position: relative; width: 20px; height: 20px; margin-left: 4px; padding: 0;
+  border-radius: 50%; border: 1px solid var(--turquesa); background: transparent;
+  color: var(--turquesa); font-size: 12px; font-weight: 700; cursor: help;
+}
+.btn-ayuda:hover::after, .btn-ayuda:focus::after {
+  content: attr(data-ayuda);
+  position: absolute; bottom: 140%; left: 50%; transform: translateX(-50%); z-index: 2000;
+  width: 260px; padding: 10px 12px; border-radius: 10px;
+  background: var(--marino); border: 1px solid var(--turquesa); box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+  color: #fff; font-size: 13px; font-weight: 400; font-style: normal; line-height: 1.4;
+  text-align: left; opacity: 1;
+}

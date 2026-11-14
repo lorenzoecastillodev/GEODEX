@@ -26,9 +26,10 @@ const NOMBRES_ES = {
 const nombreBonito = nombre => NOMBRES_ES[nombre] || nombre;
 
 // Estilos de las zonas
-const ESTILO_NORMAL  = { color: '#1fb6a6', weight: 1, fillColor: '#1fb6a6', fillOpacity: 0.12 };
+const ESTILO_NORMAL  = { color: '#1fb6a6', weight: 1, fillColor: '#1fb6a6', fillOpacity: 0.12, dashArray: null };
 const ESTILO_HOVER   = { fillOpacity: 0.4 };
 const ESTILO_ELEGIDA = { color: '#1fb6a6', weight: 3, fillColor: '#1fb6a6', fillOpacity: 0.65 };
+const estiloBase = capa => capa.estiloBase || ESTILO_NORMAL;
 
 // Espacio para que el zoom no quede tapado por el panel y la barra
 const MARGEN_ZOOM = { paddingTopLeft: [400, 120], paddingBottomRight: [80, 80] };
@@ -60,11 +61,11 @@ const capaProvincias = L.featureGroup();           // provincias de RD (ocultas 
 
 // ===== Elegir y limpiar zona =====
 function elegirZona(nombre, capa) {
-  if (capaElegida) capaElegida.setStyle(ESTILO_NORMAL);  // quitar la anterior
+    if (capaElegida) capaElegida.setStyle(estiloBase(capaElegida));
 
   zonaElegida = nombre;
   capaElegida = capa;
-  capa.setStyle(ESTILO_ELEGIDA);
+      capa.setStyle(capa.estiloBase ? { ...capa.estiloBase, color: '#fff', weight: 3, dashArray: null } : ESTILO_ELEGIDA);
 
   const texto = document.getElementById('zona-elegida');
   texto.textContent = nombreBonito(nombre);
@@ -75,7 +76,7 @@ function elegirZona(nombre, capa) {
 }
 
 function limpiarSeleccion() {
-  if (capaElegida) capaElegida.setStyle(ESTILO_NORMAL);
+    if (capaElegida) capaElegida.setStyle(estiloBase(capaElegida));
   zonaElegida = null;
   capaElegida = null;
 
@@ -107,7 +108,7 @@ function crearCapa(geojson, tipo) {
 
       // efectos del mouse
       capa.on('mouseover', () => { if (capa !== capaElegida) capa.setStyle(ESTILO_HOVER); });
-      capa.on('mouseout',  () => { if (capa !== capaElegida) capa.setStyle(ESTILO_NORMAL); });
+            capa.on('mouseout',  () => { if (capa !== capaElegida) capa.setStyle(estiloBase(capa)); });
       capa.on('click',     () => elegirZona(nombre, capa));
     }
   });
@@ -121,6 +122,7 @@ function cambiarModo(nuevoModo) {
   // botón activo
   document.querySelectorAll('.opcion').forEach(boton =>
     boton.classList.toggle('activa', boton.dataset.modo === modo)
+    
   );
 
   // mostrar una capa y esconder la otra
@@ -133,8 +135,10 @@ function cambiarModo(nuevoModo) {
     capaPaises.addTo(mapa);
     mapa.setView(CENTRO_CARIBE, ZOOM_INICIAL);
   }
+  limpiarColores();
   llenarVariables()
   limpiarSeleccion();
+  actualizarMapa();
 }
 
 document.querySelectorAll('.opcion').forEach(boton =>
@@ -150,6 +154,7 @@ const normalizar = texto =>
 // Llena las sugerencias con países y provincias
 function llenarBuscador() {
   document.getElementById('zonas').innerHTML = Object.keys(capasPorNombre)
+    .filter(nombre => capasPorNombre[nombre].tipo === 'pais')
     .map(nombre => `<option value="${nombreBonito(nombre)}">`)
     .join('');
 }
@@ -160,8 +165,9 @@ function buscar() {
   const texto = normalizar(input.value);
   if (!texto) return;
 
-  const nombre = Object.keys(capasPorNombre).find(n =>
-    normalizar(nombreBonito(n)).includes(texto) || normalizar(n).includes(texto)
+    const nombre = Object.keys(capasPorNombre).find(n =>
+    capasPorNombre[n].tipo === 'pais' &&
+    (normalizar(nombreBonito(n)).includes(texto) || normalizar(n).includes(texto))
   );
 
   if (!nombre) {
@@ -226,13 +232,27 @@ llenarAnios();
 // Todas van por país; 'provincias' solo en las que tienen datos por provincia.
 // Los id y niveles son DE PRUEBA: confirmar con Persona 1 y 2 y ponerlos en CONTRATO.md
 const VARIABLES = [
-  { id: 'NDVI',          nombre: 'Vegetación',                unidad: '',     niveles: ['pais', 'provincias'] },
-  { id: 'AREA_QUEMADA',  nombre: 'Áreas quemadas',            unidad: 'km²',  niveles: ['pais'] },
-  { id: 'SST',           nombre: 'Temperatura del océano',    unidad: '°C',   niveles: ['pais'] },
-  { id: 'PRECIPITACION', nombre: 'Precipitación',             unidad: 'mm',   niveles: ['pais', 'provincias'] },
-  { id: 'TEMP_AIRE',     nombre: 'Temperatura media del aire', unidad: '°C',  niveles: ['pais', 'provincias'] },
-  { id: 'HUMEDAD_SUELO', nombre: 'Humedad de la superficie',  unidad: '%',    niveles: ['pais'] }
+  { id: 'NDVI', nombre: 'Vegetación', unidad: '', niveles: ['pais', 'provincias'],
+    descripcion: 'Qué tan verde y sana está la vegetación vista desde satélite. Va de -1 a 1: más alto, más plantas.' },
+  { id: 'AREA_QUEMADA', nombre: 'Áreas quemadas', unidad: 'km²', niveles: ['pais'],
+    descripcion: 'Superficie que los satélites detectaron quemada por incendios cada mes.' },
+  { id: 'SST', nombre: 'Temperatura del océano', unidad: '°C', niveles: ['pais'],
+    descripcion: 'Temperatura del agua en la superficie del mar. Influye en huracanes, corales y pesca.' },
+  { id: 'PRECIPITACION', nombre: 'Precipitación', unidad: 'mm', niveles: ['pais', 'provincias'],
+    descripcion: 'Cuánta lluvia cae cada mes.' },
+  { id: 'TEMP_AIRE', nombre: 'Temperatura media del aire', unidad: '°C', niveles: ['pais', 'provincias'],
+    descripcion: 'Temperatura del aire a 2 metros del suelo, como la que sentimos al salir.' },
+  { id: 'HUMEDAD_SUELO', nombre: 'Humedad de la superficie', unidad: '%', niveles: ['pais'],
+    descripcion: 'Qué tan mojada está la capa de arriba del suelo. Importa para los cultivos y las sequías.' }
 ];
+
+const infoVariable = id => VARIABLES.find(v => v.id === id);
+
+function mostrarDescripcion() {
+  const id = document.getElementById('variable').value;
+  document.getElementById('desc-variable').textContent = infoVariable(id)?.descripcion ?? '';
+}
+document.getElementById('variable').addEventListener('change', mostrarDescripcion);
 
 function llenarVariables() {
   const select = document.getElementById('variable');
@@ -244,6 +264,7 @@ function llenarVariables() {
 
   // si la que estaba elegida sigue disponible, se queda
   if (disponibles.some(v => v.id === actual)) select.value = actual;
+    mostrarDescripcion();
 }
 llenarVariables();
 
@@ -267,7 +288,7 @@ function validar({ desde, hasta }) {
 // DATOS FALSOS con el formato de GET /api/analisis del contrato
 const ANIO_PROYECCION = 2030;
 
-const USAR_SERVIDOR = true;   // false = volver a los datos falsos
+const USAR_SERVIDOR = false;   // false = volver a los datos falsos
 const API = 'http://127.0.0.1:5000';
 
 // TEMPORAL: hasta que el equipo acuerde los nombres de zona en series.json
@@ -329,8 +350,6 @@ async function obtenerAnalisis(params) {
   datos.zona = params.zona;   // para mostrar el nombre en español
   return datos;
 }
-
-const infoVariable = id => VARIABLES.find(v => v.id === id);
 const nombreVariable = id => infoVariable(id)?.nombre ?? id;
 const conSigno = (n, dec) => `${n >= 0 ? '+' : ''}${n.toFixed(dec)}`;
 
@@ -339,6 +358,12 @@ function altoDisponible() {
   const panel = document.getElementById('resultados').getBoundingClientRect();
   const grafica = document.getElementById('grafica').getBoundingClientRect();
   return Math.max(180, panel.bottom - grafica.top - 14);
+}
+
+function explicarP(p) {
+  if (p < 0.01) return 'casi seguro que es un cambio real';
+  if (p < 0.05) return 'probablemente es un cambio real';
+  return 'podría ser casualidad';
 }
 
 function mostrarResultados(d) {
@@ -351,7 +376,7 @@ function mostrarResultados(d) {
   const sig = document.getElementById('t-sig');
   sig.textContent = d.significativo ? 'Sí' : 'No';
   sig.className = clase;
-  document.getElementById('t-p').textContent = `p = ${d.p.toFixed(3)}`;
+    document.getElementById('t-p').textContent = `p = ${d.p.toFixed(3)} · ${explicarP(d.p)}`;
 
   const decada = document.getElementById('t-decada');
   decada.textContent = `${conSigno(d.pendiente_decada, 3)} ${unidad}`;
@@ -365,10 +390,11 @@ function mostrarResultados(d) {
 
   const hayProyeccion = d.proyeccion?.valores?.length > 0;
   let texto = d.resumen;
+    if (!d.significativo) texto += ' Aunque no es significativo, con más años de datos podría llegar a serlo.';
   if (hayProyeccion) {
     const ultimoAnio = d.proyeccion.valores.slice(-12);
     const promedio = ultimoAnio.reduce((a, b) => a + b, 0) / ultimoAnio.length;
-    texto += ` Si la tendencia sigue igual, en ${ANIO_PROYECCION} el promedio sería de ${promedio.toFixed(2)} ${unidad}.`;
+        texto += ` Si la tendencia sigue igual, en ${ANIO_PROYECCION} el promedio sería de ${promedio.toFixed(2)}${unidad ? ' ' + unidad : ''}.`;
   }
   document.getElementById('resumen').textContent = texto;
 
@@ -402,6 +428,95 @@ function mostrarResultados(d) {
     }] : []
   }, { responsive: true, displayModeBar: false });
 }
+
+// ===== Mapa de colores por región =====
+
+function mapaFalso() {
+  const resultado = {};
+  Object.values(capasPorNombre)
+    .filter(capa => capa.tipo === 'provincias')
+    .forEach(capa => {
+      resultado[capa.feature.properties.shapeName] = {
+        pendiente_decada: (Math.random() - 0.5) * 0.05,
+        significativo: Math.random() > 0.4
+      };
+    });
+  return resultado;
+}
+
+async function obtenerMapa({ variable, desde, hasta }) {
+  if (!USAR_SERVIDOR) return mapaFalso();
+
+  const respuesta = await fetch(`${API}/api/mapa?` + new URLSearchParams({ variable, desde, hasta }));
+  const datos = await respuesta.json();
+  if (!respuesta.ok) throw new Error(datos.error || 'Error del servidor');
+  return datos;
+}
+
+function pintarMapa(datos, { variable, desde, hasta }) {
+  const unidad = infoVariable(variable)?.unidad ?? '';
+  document.getElementById('leyenda-titulo').textContent =
+    `${nombreVariable(variable)} · ${desde}–${hasta}`;
+  const regiones = Object.values(capasPorNombre).filter(capa => capa.tipo === 'provincias');
+
+  // el cambio más fuerte define el color más intenso
+  const maximo = Math.max(...Object.values(datos).map(d => Math.abs(d.pendiente_decada)), 1e-9);
+
+  regiones.forEach(capa => {
+    const nombre = capa.feature.properties.shapeName;
+    const dato = datos[zonaParaApi(nombre)];
+
+    if (!dato) {
+      capa.estiloBase = { color: '#fff', weight: 1, dashArray: '4', fillOpacity: 0 };
+      capa.setTooltipContent(`${nombreBonito(nombre)} · sin datos`);
+    } else {
+      const intensidad = Math.abs(dato.pendiente_decada) / maximo;
+      const color = !dato.significativo ? '#8a9bb5' : dato.pendiente_decada >= 0 ? '#2ecc71' : '#e74c3c';
+      capa.estiloBase = {
+        color: '#0b1d3a', weight: 1, dashArray: null, fillColor: color,
+        fillOpacity: dato.significativo ? 0.3 + 0.55 * intensidad : 0.3
+      };
+      capa.setTooltipContent(
+        `${nombreBonito(nombre)} · ${conSigno(dato.pendiente_decada, 3)} ${unidad}/década`
+      );
+    }
+        capa.setStyle(capa === capaElegida
+      ? { ...capa.estiloBase, color: '#fff', weight: 3, dashArray: null }
+      : capa.estiloBase);
+  });
+
+  document.getElementById('leyenda').hidden = false;
+}
+
+function limpiarColores() {
+  Object.values(capasPorNombre).forEach(capa => {
+    if (!capa.estiloBase) return;
+    capa.estiloBase = null;
+    capa.setStyle(ESTILO_NORMAL);
+    capa.setTooltipContent(nombreBonito(capa.feature.properties.shapeName));
+  });
+  document.getElementById('leyenda').hidden = true;
+}
+
+async function actualizarMapa() {
+  if (modo !== 'provincias') return;
+  const params = leerParametros();
+  if (validar(params)) return;
+
+  try {
+    pintarMapa(await obtenerMapa(params), params);
+  } catch (e) {
+    console.warn('No se pudo pintar el mapa', e);
+  }
+}
+
+// al cambiar variable o años: repintar y cerrar resultados viejos
+['variable', 'desde', 'hasta'].forEach(id =>
+  document.getElementById(id).addEventListener('change', () => {
+    document.getElementById('resultados').hidden = true;
+    actualizarMapa();
+  })
+);
 
 document.getElementById('analizar').addEventListener('click', async () => {
   const params = leerParametros();
