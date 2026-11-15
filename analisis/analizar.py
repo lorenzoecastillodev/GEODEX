@@ -86,6 +86,7 @@ def analizar(serie, desde, hasta, zona="zona", variable="NDVI"):
         "T2M_MAX": "La temperatura máxima",
         "PRECTOTCORR": "La precipitación",
         "GWETROOT": "La humedad del suelo",
+        "CAUDAL": "El caudal del río principal",
     }
     nombre_variable = nombres_variables.get(variable, variable)
 

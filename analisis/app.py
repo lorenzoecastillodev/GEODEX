@@ -6,8 +6,8 @@ from analizar import analizar
 
 
 app = Flask(__name__)
-VARIABLES_DISPONIBLES = ("T2M", "T2M_MAX", "PRECTOTCORR", "GWETROOT", "TEMP_MAR")
-MENSAJE_VARIABLES = "La variable debe ser una de las siguientes: T2M, T2M_MAX, PRECTOTCORR, GWETROOT, TEMP_MAR."
+VARIABLES_DISPONIBLES = ("T2M", "T2M_MAX", "PRECTOTCORR", "GWETROOT", "CAUDAL")
+MENSAJE_VARIABLES = "La variable debe ser una de las siguientes: T2M, T2M_MAX, PRECTOTCORR, GWETROOT, CAUDAL."
 ruta_datos = Path(__file__).parent.parent / "datos" / "series.json"
 ruta_zonas = Path(__file__).parent.parent / "datos" / "zonas.json"
 
@@ -15,6 +15,17 @@ ruta_zonas = Path(__file__).parent.parent / "datos" / "zonas.json"
 
 with open(ruta_datos, "r", encoding="utf-8") as archivo:
     series = json.load(archivo)
+
+ruta_caudal = Path(__file__).parent.parent / "datos" / "caudal.json"
+if ruta_caudal.exists():
+    with open(ruta_caudal, "r", encoding="utf-8") as archivo:
+        datos_caudal = json.load(archivo)
+
+    for zona, variables_caudal in datos_caudal.get("series", {}).items():
+        caudal = variables_caudal.get("CAUDAL", [])
+
+        if zona in series and any(float(dato.get("valor", 0)) > 0 for dato in caudal):
+            series[zona]["CAUDAL"] = caudal
 
 with open(ruta_zonas, "r", encoding="utf-8") as archivo:
     zonas = json.load(archivo)
@@ -43,6 +54,9 @@ def api_analisis():
         return jsonify({"error": f"No hay datos para la zona {zona}."}), 404
 
     serie = series[zona].get(variable, [])
+    if not serie:
+        return jsonify ({"error": f"No hay datos de {variable.lower()} para {zona}."}), 404
+    
     try:
         resultado = analizar(
             serie,
