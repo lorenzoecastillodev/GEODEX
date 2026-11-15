@@ -15,7 +15,7 @@ import requests
 from shapely.geometry import shape, Point
 
 VARIABLES = ["T2M", "T2M_MAX", "PRECTOTCORR", "GWETROOT"]
-DESDE, HASTA = 2001, 2024
+DESDE, HASTA = 2001, 2025
 PASO_LAT, PASO_LON = 0.5, 0.625   # cuadrícula de POWER (MERRA-2)
 MIN_REGIONES_DISTINTAS = 0.6      # menos de 60 % de regiones distintas = no se usan
 

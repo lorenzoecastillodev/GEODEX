@@ -241,7 +241,7 @@ async function iniciar() {
 
 // ===== Variable, años y Analizar =====
 const ANIO_MIN = 2001;
-const ANIO_MAX = 2024;
+const ANIO_MAX = 2025;
 
 function llenarAnios() {
   const desde = document.getElementById('desde');
