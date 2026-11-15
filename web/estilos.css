@@ -258,3 +258,10 @@ body:has(#resultados:not([hidden])) #leyenda { display: none; }
 
 /* Con el chat abierto la gráfica es más angosta: la hacemos más alta para que no se vea aplastada */
 .con-diagnostico #grafica { height: 400px; }
+/* Selector Países / Regiones dentro del buscador */
+#tipo-busqueda {
+  border: none; border-right: 2px solid var(--turquesa); outline: none; cursor: pointer;
+  background: rgba(31, 182, 166, 0.15); color: #fff; font-size: 16px; font-weight: 600;
+  padding: 0 14px 0 20px;
+}
+#tipo-busqueda option { background: #0b1d3a; color: #fff; }

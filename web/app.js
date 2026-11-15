@@ -17,7 +17,7 @@ const PAISES = [
   { iso: 'GTM', archivo: 'geoBoundaries-GTM-ADM0_simplified.geojson', regiones: 'geoBoundaries-GTM-ADM1_simplified.geojson' },
   { iso: 'BLZ', archivo: 'geoBoundaries-BLZ-ADM0_simplified.geojson', regiones: 'geoBoundaries-BLZ-ADM1_simplified.geojson' },
   { iso: 'HND', archivo: 'geoBoundaries-HND-ADM0_simplified.geojson', regiones: 'geoBoundaries-HND-ADM1_simplified.geojson' },
-  { iso: 'SLV', archivo: 'geoBoundaries-SLV-ADM0_simplified.geojson', regiones: 'geoBoundaries-SLV-ADM1_simplified.geojson' },
+  { iso: 'SLV', archivo: 'geoBoundaries-SLV-ADM0_simplified.geojson', regiones: null },   // muy pequeño: sus departamentos tienen casi los mismos datos
   { iso: 'NIC', archivo: 'geoBoundaries-NIC-ADM0_simplified.geojson', regiones: 'geoBoundaries-NIC-ADM1_simplified.geojson' },
   { iso: 'CRI', archivo: 'geoBoundaries-CRI-ADM0_simplified.geojson', regiones: 'geoBoundaries-CRI-ADM1_simplified.geojson' },
   { iso: 'PAN', archivo: 'geoBoundaries-PAN-ADM0_simplified.geojson', regiones: 'geoBoundaries-PAN-ADM1_simplified.geojson' }
@@ -208,12 +208,41 @@ document.querySelectorAll('.opcion').forEach(boton =>
 const normalizar = texto =>
   texto.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim();
 
-// Llena las sugerencias con los países
+// Nombre corto del país para las sugerencias de regiones: "Rep. Dom. - Yuma"
+const PAIS_CORTO = {
+  DOM: 'Rep. Dom.', HTI: 'Haití', CUB: 'Cuba', BHS: 'Bahamas', JAM: 'Jamaica', PRI: 'Puerto Rico',
+  GTM: 'Guatemala', BLZ: 'Belice', HND: 'Honduras', SLV: 'El Salvador', NIC: 'Nicaragua',
+  CRI: 'Costa Rica', PAN: 'Panamá'
+};
+
+// ¿Qué se busca? 'pais' o 'provincias' (lo elige el selector al lado del buscador)
+const tipoBusqueda = () => document.getElementById('tipo-busqueda').value;
+
+// Texto que se ve en la sugerencia
+function etiquetaBusqueda(nombre) {
+  const capa = capasPorNombre[nombre];
+  return capa.tipo === 'pais'
+    ? nombreBonito(nombre)
+    : `${PAIS_CORTO[capa.iso] || capa.iso} - ${nombreBonito(nombre)}`;
+}
+
+// Zonas que se pueden buscar según el tipo elegido
+// (regiones solo de países que tienen regiones con datos)
+function zonasBuscables() {
+  const tipo = tipoBusqueda();
+  return Object.keys(capasPorNombre)
+    .filter(n => capasPorNombre[n].tipo === tipo)
+    .filter(n => tipo === 'pais' || capasRegiones[capasPorNombre[n].iso])
+    .sort((a, b) => etiquetaBusqueda(a).localeCompare(etiquetaBusqueda(b), 'es'));
+}
+
+// Llena las sugerencias (países o "País - Región")
 function llenarBuscador() {
-  document.getElementById('zonas').innerHTML = Object.keys(capasPorNombre)
-    .filter(nombre => capasPorNombre[nombre].tipo === 'pais')
-    .map(nombre => `<option value="${nombreBonito(nombre)}">`)
+  document.getElementById('zonas').innerHTML = zonasBuscables()
+    .map(nombre => `<option value="${etiquetaBusqueda(nombre)}">`)
     .join('');
+  document.getElementById('buscador').placeholder =
+    tipoBusqueda() === 'pais' ? 'Busca un país...' : 'Busca una región... ej: Yuma';
 }
 
 // Busca la zona, cambia de modo si hace falta, hace zoom y la elige
@@ -222,10 +251,12 @@ function buscar() {
   const texto = normalizar(input.value);
   if (!texto) return;
 
-  const nombre = Object.keys(capasPorNombre).find(n =>
-    capasPorNombre[n].tipo === 'pais' &&
-    (normalizar(nombreBonito(n)).includes(texto) || normalizar(n).includes(texto))
-  );
+  const zonas = zonasBuscables();
+  // primero coincidencia exacta con la sugerencia, luego que contenga el texto
+  const nombre =
+    zonas.find(n => normalizar(etiquetaBusqueda(n)) === texto) ||
+    zonas.find(n => normalizar(etiquetaBusqueda(n)).includes(texto) ||
+                    normalizar(nombreBonito(n)).includes(texto) || normalizar(n).includes(texto));
 
   if (!nombre) {
     input.parentElement.classList.add('error');
@@ -234,11 +265,23 @@ function buscar() {
   }
 
   const capa = capasPorNombre[nombre];
+  if (capa.tipo === 'provincias') {
+    // si se estaban viendo las regiones de OTRO país, primero se vuelve a países
+    if (modo === 'provincias' && paisActual !== capa.iso) cambiarModo('pais');
+    paisActual = capa.iso;
+  }
   cambiarModo(capa.tipo);
   mapa.fitBounds(capa.getBounds(), MARGEN_ZOOM);
   elegirZona(nombre, capa);
-  input.value = nombreBonito(nombre);
+  input.value = etiquetaBusqueda(nombre);
 }
+
+// Al cambiar entre Países / Regiones se actualizan las sugerencias
+document.getElementById('tipo-busqueda').addEventListener('change', () => {
+  document.getElementById('buscador').value = '';
+  llenarBuscador();
+  document.getElementById('buscador').focus();
+});
 
 document.getElementById('btn-buscar').onclick = buscar;
 document.getElementById('buscador').addEventListener('keydown', e => { if (e.key === 'Enter') buscar(); });

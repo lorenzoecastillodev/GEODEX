@@ -161,7 +161,7 @@ def mensaje_error_ia(error):
                 if isinstance(motivos, list) and any(
                     isinstance(m, dict) and m.get('reason') == 'API_KEY_INVALID' for m in motivos
                 ):
-                    return 'Gemini no reconoce la clave (API_KEY_INVALID). Copia la clave completa de Google AI Studio y reinicia LUNYDE.'
+                    return 'Gemini no reconoce la clave (API_KEY_INVALID). Copia la clave completa de Google AI Studio y reinicia GEODEX.'
                 if detalle.get('status') == 'FAILED_PRECONDITION':
                     return 'Gemini informó FAILED_PRECONDITION (400). Revisa que tu proyecto tenga acceso a la API en tu región.'
             return 'Gemini devolvió 400. Revisa el modelo seleccionado y el formato de la solicitud.'
@@ -187,7 +187,7 @@ def explicar_ia(c, pregunta, historial):
         return None
     validar_clave_gemini(clave)
     instrucciones = (
-        'Eres el asistente ambiental de LUNYDE. Responde en español, breve y en texto plano. '
+        'Eres el asistente ambiental de GEODEX. Responde en español, breve y en texto plano. '
         'Céntrate SIEMPRE en la variable seleccionada (campo "variable" del contexto) y en su resultado. '
         'Menciona otras variables solo si ayudan a explicar la seleccionada, y dilo de forma explícita '
         '(por ejemplo: "esto podría relacionarse con..."). '

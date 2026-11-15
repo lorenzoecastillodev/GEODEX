@@ -212,7 +212,7 @@ def api_diagnostico():
         aviso = mensaje_error_ia(error)
     else:
         aviso = ('Interpretación con Gemini basada en los datos del sistema.' if texto else
-                 'Falta la clave de Gemini. Arranca LUNYDE con iniciar_lunyde.py para cargarla.')
+                 'Falta la clave de Gemini. Arranca GEODEX con iniciar_lunyde.py para cargarla.')
     if not texto and accion != 'preguntar':
         aviso += ' Se muestra el diagnóstico calculado con datos.'
     return jsonify(contexto=c, secciones=secciones, texto=texto,
