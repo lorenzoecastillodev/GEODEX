@@ -267,7 +267,9 @@ const VARIABLES = [
   { id: 'GWETROOT', nombre: 'Humedad del suelo', unidad: '%', niveles: ['pais', 'provincias'],
     descripcion: 'Qué tan mojado está el suelo donde crecen las raíces (hasta ~1 metro). Clave para cultivos y sequías.' },
   { id: 'CAUDAL', nombre: 'Caudal de ríos', unidad: 'm³/s', niveles: ['pais', 'provincias'],
-    descripcion: 'Cuánta agua lleva el río principal de la zona cada segundo (modelo GEOGLOWS).' }
+    descripcion: 'Cuánta agua lleva el río principal de la zona cada segundo (modelo GEOGLOWS).' },
+  { id: 'NDVI', nombre: 'Vegetación (NDVI)', unidad: 'NDVI', niveles: ['pais', 'provincias'],
+    descripcion: 'Qué tan verde y viva está la vegetación (de 0 a 1: cerca de 0.8 es bosque denso, cerca de 0.2 casi sin plantas). Satélite MODIS de la NASA.' }
 ];
 
 
@@ -457,6 +459,7 @@ function limitarValor(variable, v) {
   if (variable === 'PRECTOTCORR') return Math.max(0, v);
   if (variable === 'GWETROOT') return Math.min(100, Math.max(0, v));
   if (variable === 'CAUDAL') return Math.max(0, v);
+  if (variable === 'NDVI') return Math.min(1, Math.max(-1, v));
   return v;
 }
 
@@ -521,6 +524,8 @@ function mostrarResultados(d) {
     : `${d.cambio_total >= 0 ? '↑' : '↓'} ${conSigno(d.cambio_pct, 1)} %`;
   pct.className = clase;
 
+  mostrarNivelVegetacion(d);
+
    const proyeccion = d.significativo ? calcularProyeccion(d) : null;
   const hayProyeccion = Boolean(proyeccion?.valores.length);
 
@@ -578,6 +583,59 @@ function mostrarResultados(d) {
       line: { color: 'rgba(255,255,255,0.4)', width: 1, dash: 'dot' }
     }] : []
   }, { responsive: true, displayModeBar: false });
+}
+
+// ===== Tarjeta "Nivel de vegetación" (solo NDVI) =====
+// Muestra CUÁNTO verde hay (no solo si cambió), para comparar zonas. Ej: Haití 0.64 vs RD 0.71.
+
+function nivelNDVI(v) {
+  if (v < 0.3) return { texto: 'Muy baja', color: '#e74c3c' };
+  if (v < 0.5) return { texto: 'Baja', color: '#f39c12' };
+  if (v < 0.7) return { texto: 'Moderada', color: '#a3d977' };
+  return { texto: 'Alta', color: '#2ecc71' };
+}
+
+// Crea la 4.ª tarjeta una sola vez (así no hay que tocar index.html)
+function tarjetaNivel() {
+  let tarjeta = document.getElementById('t-nivel-tarjeta');
+  if (tarjeta) return tarjeta;
+  tarjeta = document.createElement('div');
+  tarjeta.className = 'tarjeta';
+  tarjeta.id = 't-nivel-tarjeta';
+  tarjeta.innerHTML = `
+    <span>Nivel de vegetación
+      <button class="btn-ayuda" data-ayuda="Cuánto verde hay en promedio en los últimos años (NDVI de 0 a 1). Menos de 0.3: muy baja · 0.3–0.5: baja · 0.5–0.7: moderada · más de 0.7: alta. Sirve para comparar zonas aunque las dos estén subiendo.">?</button>
+    </span>
+    <b id="t-nivel"></b>
+    <div style="height:8px;border-radius:999px;background:rgba(255,255,255,0.12);margin:6px 0 4px;overflow:hidden">
+      <div id="t-nivel-barra" style="height:100%;width:0;border-radius:999px;transition:width .4s"></div>
+    </div>
+    <small id="t-nivel-periodo"></small>`;
+  document.querySelector('#resultados .tarjetas').appendChild(tarjeta);
+  return tarjeta;
+}
+
+function mostrarNivelVegetacion(d) {
+  const tarjeta = tarjetaNivel();
+  if (d.variable !== 'NDVI' || !d.valores?.length) {
+    tarjeta.style.display = 'none';
+    return;
+  }
+  // promedio de los últimos 5 años del rango elegido (o menos si el rango es corto)
+  const ultimos = d.valores.slice(-60);
+  const fechas = d.fechas.slice(-60);
+  const valor = promedio(ultimos);
+  const nivel = nivelNDVI(valor);
+
+  const b = document.getElementById('t-nivel');
+  b.textContent = `${valor.toFixed(2)} · ${nivel.texto}`;
+  b.style.color = nivel.color;
+  const barra = document.getElementById('t-nivel-barra');
+  barra.style.width = `${Math.max(0, Math.min(1, valor)) * 100}%`;
+  barra.style.background = nivel.color;
+  document.getElementById('t-nivel-periodo').textContent =
+    `Promedio ${fechas[0].slice(0, 4)}–${fechas.at(-1).slice(0, 4)}`;
+  tarjeta.style.display = '';
 }
 
 // ===== Gráfica de barras por año (caudal) =====
@@ -668,7 +726,8 @@ const SUBIR_ES_MALO = {
   T2M_MAX: true,
   PRECTOTCORR: false,
   GWETROOT: false,
-  CAUDAL: false
+  CAUDAL: false,
+  NDVI: false      // perder vegetación es malo
 };
 
 // 'malo', 'bueno' o 'neutro' según la variable y hacia dónde cambió
