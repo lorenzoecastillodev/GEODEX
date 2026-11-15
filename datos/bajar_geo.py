@@ -15,14 +15,14 @@ from pathlib import Path
 import requests
 
 CARIBE = ["CUB", "DOM", "HTI", "JAM", "BHS"]
-CENTROAMERICA = ["GTM", "BLZ", "HND", "SLV", "NIC", "CRI", "PAN"]
+CENTROAMERICA = ["GTM", "BLZ", "HND", "SLV", "NIC", "CRI", "PAN", "MEX"]   # incluye México
 PAISES = CARIBE + CENTROAMERICA
 NIVELES = ["ADM0", "ADM1"]
 CARPETA = Path("geo")
 API = "https://www.geoboundaries.org/api/current/gbOpen/{iso}/{nivel}/"
 
 NOMBRE_PAIS = {"GTM": "Guatemala", "BLZ": "Belice", "HND": "Honduras", "SLV": "El Salvador",
-               "NIC": "Nicaragua", "CRI": "Costa Rica", "PAN": "Panamá"}
+               "NIC": "Nicaragua", "CRI": "Costa Rica", "PAN": "Panamá", "MEX": "México"}
 
 
 def bajar(iso, nivel):

@@ -20,7 +20,8 @@ PASO_LAT, PASO_LON = 0.5, 0.625   # cuadrícula de POWER (MERRA-2)
 MIN_REGIONES_DISTINTAS = 0.6      # menos de 60 % de regiones distintas = no se usan
 
 PAISES = ["CUB", "DOM", "HTI", "JAM", "BHS",            # Caribe
-          "GTM", "BLZ", "HND", "SLV", "NIC", "CRI", "PAN"]   # Centroamérica
+          "GTM", "BLZ", "HND", "SLV", "NIC", "CRI", "PAN",   # Centroamérica
+          "MEX"]                                             # México
 SOLO_PAIS = {"pr.json": "PRI"}
 REGIONES_ESPECIALES = {"DOM": "DOM-regiones.geojson"}
 

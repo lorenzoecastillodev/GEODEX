@@ -651,6 +651,138 @@
     "pais": "PAN",
     "nivel": "region"
   },
+  "Mexico": {
+    "pais": "MEX",
+    "nivel": "pais"
+  },
+  "Aguascalientes": {
+    "pais": "MEX",
+    "nivel": "region"
+  },
+  "Baja California": {
+    "pais": "MEX",
+    "nivel": "region"
+  },
+  "Baja California Sur": {
+    "pais": "MEX",
+    "nivel": "region"
+  },
+  "Campeche": {
+    "pais": "MEX",
+    "nivel": "region"
+  },
+  "Chiapas": {
+    "pais": "MEX",
+    "nivel": "region"
+  },
+  "Chihuahua": {
+    "pais": "MEX",
+    "nivel": "region"
+  },
+  "Coahuila de Zaragoza": {
+    "pais": "MEX",
+    "nivel": "region"
+  },
+  "Colima": {
+    "pais": "MEX",
+    "nivel": "region"
+  },
+  "Distrito Federal": {
+    "pais": "MEX",
+    "nivel": "region"
+  },
+  "Durango": {
+    "pais": "MEX",
+    "nivel": "region"
+  },
+  "Guanajuato": {
+    "pais": "MEX",
+    "nivel": "region"
+  },
+  "Guerrero": {
+    "pais": "MEX",
+    "nivel": "region"
+  },
+  "Hidalgo": {
+    "pais": "MEX",
+    "nivel": "region"
+  },
+  "Jalisco": {
+    "pais": "MEX",
+    "nivel": "region"
+  },
+  "Mexico (México)": {
+    "pais": "MEX",
+    "nivel": "region"
+  },
+  "Michoacan de Ocampo": {
+    "pais": "MEX",
+    "nivel": "region"
+  },
+  "Morelos": {
+    "pais": "MEX",
+    "nivel": "region"
+  },
+  "Nayarit": {
+    "pais": "MEX",
+    "nivel": "region"
+  },
+  "Nuevo Leon": {
+    "pais": "MEX",
+    "nivel": "region"
+  },
+  "Oaxaca": {
+    "pais": "MEX",
+    "nivel": "region"
+  },
+  "Puebla": {
+    "pais": "MEX",
+    "nivel": "region"
+  },
+  "Queretaro de Arteaga": {
+    "pais": "MEX",
+    "nivel": "region"
+  },
+  "Quintana Roo": {
+    "pais": "MEX",
+    "nivel": "region"
+  },
+  "San Luis Potosi": {
+    "pais": "MEX",
+    "nivel": "region"
+  },
+  "Sinaloa": {
+    "pais": "MEX",
+    "nivel": "region"
+  },
+  "Sonora": {
+    "pais": "MEX",
+    "nivel": "region"
+  },
+  "Tabasco": {
+    "pais": "MEX",
+    "nivel": "region"
+  },
+  "Tamaulipas": {
+    "pais": "MEX",
+    "nivel": "region"
+  },
+  "Tlaxcala": {
+    "pais": "MEX",
+    "nivel": "region"
+  },
+  "Veracruz de Ignacio de la Llave": {
+    "pais": "MEX",
+    "nivel": "region"
+  },
+  "Yucatan": {
+    "pais": "MEX",
+    "nivel": "region"
+  },
+  "Zacatecas": {
+    "pais": "MEX",
+    "nivel": "region"
+  },
   "Puerto Rico": {
     "pais": "PRI",
     "nivel": "pais"

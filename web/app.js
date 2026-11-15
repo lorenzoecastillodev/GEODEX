@@ -1,7 +1,7 @@
 // ===== Configuración =====
-// Centro para ver el Caribe y Centroamérica juntos
-const CENTRO_CARIBE = [16, -78];
-const ZOOM_INICIAL = 5;
+// Centro para ver el Caribe, Centroamérica y México juntos
+const CENTRO_CARIBE = [19, -88];
+const ZOOM_INICIAL = 4;
 
 // Dónde están los GeoJSON
 const RUTA_GEO = '../datos/geo/';
@@ -20,7 +20,9 @@ const PAISES = [
   { iso: 'SLV', archivo: 'geoBoundaries-SLV-ADM0_simplified.geojson', regiones: null },   // muy pequeño: sus departamentos tienen casi los mismos datos
   { iso: 'NIC', archivo: 'geoBoundaries-NIC-ADM0_simplified.geojson', regiones: 'geoBoundaries-NIC-ADM1_simplified.geojson' },
   { iso: 'CRI', archivo: 'geoBoundaries-CRI-ADM0_simplified.geojson', regiones: 'geoBoundaries-CRI-ADM1_simplified.geojson' },
-  { iso: 'PAN', archivo: 'geoBoundaries-PAN-ADM0_simplified.geojson', regiones: 'geoBoundaries-PAN-ADM1_simplified.geojson' }
+  { iso: 'PAN', archivo: 'geoBoundaries-PAN-ADM0_simplified.geojson', regiones: 'geoBoundaries-PAN-ADM1_simplified.geojson' },
+  // México
+  { iso: 'MEX', archivo: 'geoBoundaries-MEX-ADM0_simplified.geojson', regiones: 'geoBoundaries-MEX-ADM1_simplified.geojson' }
 ];
 
 // Nombres en español para mostrar (la llave sigue siendo el shapeName original)
@@ -34,6 +36,7 @@ const NOMBRES_ES = {
   'Belize': 'Belice',
   'Panama': 'Panamá',
   'The Republic of Panama': 'Panamá',
+  'Mexico': 'México',
   // Regiones de Centroamérica que vienen en inglés o con nombres raros
   'Belize (Belice)': 'Belize (distrito)',
   'Guatemala (Guatemala)': 'Guatemala (departamento)',
@@ -212,7 +215,7 @@ const normalizar = texto =>
 const PAIS_CORTO = {
   DOM: 'Rep. Dom.', HTI: 'Haití', CUB: 'Cuba', BHS: 'Bahamas', JAM: 'Jamaica', PRI: 'Puerto Rico',
   GTM: 'Guatemala', BLZ: 'Belice', HND: 'Honduras', SLV: 'El Salvador', NIC: 'Nicaragua',
-  CRI: 'Costa Rica', PAN: 'Panamá'
+  CRI: 'Costa Rica', PAN: 'Panamá', MEX: 'México'
 };
 
 // ¿Qué se busca? 'pais' o 'provincias' (lo elige el selector al lado del buscador)

@@ -27,7 +27,8 @@ SALIDA = CARPETA / "vegetacion.json"
 
 DESDE, HASTA = 2001, 2025
 PAISES = ["CUB", "DOM", "HTI", "JAM", "BHS",            # Caribe
-          "GTM", "BLZ", "HND", "SLV", "NIC", "CRI", "PAN"]   # Centroamérica
+          "GTM", "BLZ", "HND", "SLV", "NIC", "CRI", "PAN",   # Centroamérica
+          "MEX"]                                             # México
 REGIONES_ESPECIALES = {"DOM": "DOM-regiones.geojson"}   # igual que descargar_power.py
 SOLO_PAIS = {"pr.json": "PRI"}
 SIMPLIFICAR = 0.005   # grados (~500 m): achica los polígonos para que la petición no sea enorme
