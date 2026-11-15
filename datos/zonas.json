@@ -291,6 +291,366 @@
     "pais": "BHS",
     "nivel": "region"
   },
+  "Guatemala": {
+    "pais": "GTM",
+    "nivel": "pais"
+  },
+  "Alta Verapaz": {
+    "pais": "GTM",
+    "nivel": "region"
+  },
+  "Suchitepéquez": {
+    "pais": "GTM",
+    "nivel": "region"
+  },
+  "El Progreso": {
+    "pais": "GTM",
+    "nivel": "region"
+  },
+  "Zacapa": {
+    "pais": "GTM",
+    "nivel": "region"
+  },
+  "Petén": {
+    "pais": "GTM",
+    "nivel": "region"
+  },
+  "Quiché": {
+    "pais": "GTM",
+    "nivel": "region"
+  },
+  "Chiquimula": {
+    "pais": "GTM",
+    "nivel": "region"
+  },
+  "Sacatepéquez": {
+    "pais": "GTM",
+    "nivel": "region"
+  },
+  "Guatemala (Guatemala)": {
+    "pais": "GTM",
+    "nivel": "region"
+  },
+  "Izabal": {
+    "pais": "GTM",
+    "nivel": "region"
+  },
+  "Jalapa": {
+    "pais": "GTM",
+    "nivel": "region"
+  },
+  "San Marcos": {
+    "pais": "GTM",
+    "nivel": "region"
+  },
+  "Huehuetenango": {
+    "pais": "GTM",
+    "nivel": "region"
+  },
+  "Totonicapán": {
+    "pais": "GTM",
+    "nivel": "region"
+  },
+  "Quetzaltenango": {
+    "pais": "GTM",
+    "nivel": "region"
+  },
+  "Retalhuleu": {
+    "pais": "GTM",
+    "nivel": "region"
+  },
+  "Baja Verapaz": {
+    "pais": "GTM",
+    "nivel": "region"
+  },
+  "Sololá": {
+    "pais": "GTM",
+    "nivel": "region"
+  },
+  "Escuintla": {
+    "pais": "GTM",
+    "nivel": "region"
+  },
+  "Chimaltenango": {
+    "pais": "GTM",
+    "nivel": "region"
+  },
+  "Jutiapa": {
+    "pais": "GTM",
+    "nivel": "region"
+  },
+  "Santa Rosa": {
+    "pais": "GTM",
+    "nivel": "region"
+  },
+  "Belize": {
+    "pais": "BLZ",
+    "nivel": "pais"
+  },
+  "Orange Walk": {
+    "pais": "BLZ",
+    "nivel": "region"
+  },
+  "Corozal": {
+    "pais": "BLZ",
+    "nivel": "region"
+  },
+  "Belize (Belice)": {
+    "pais": "BLZ",
+    "nivel": "region"
+  },
+  "Cayo": {
+    "pais": "BLZ",
+    "nivel": "region"
+  },
+  "Stann Creek": {
+    "pais": "BLZ",
+    "nivel": "region"
+  },
+  "Toledo": {
+    "pais": "BLZ",
+    "nivel": "region"
+  },
+  "Honduras": {
+    "pais": "HND",
+    "nivel": "pais"
+  },
+  "Gracias a Dios": {
+    "pais": "HND",
+    "nivel": "region"
+  },
+  "Bay Islands": {
+    "pais": "HND",
+    "nivel": "region"
+  },
+  "Choluteca": {
+    "pais": "HND",
+    "nivel": "region"
+  },
+  "Colón": {
+    "pais": "HND",
+    "nivel": "region"
+  },
+  "El Paraíso": {
+    "pais": "HND",
+    "nivel": "region"
+  },
+  "Olancho": {
+    "pais": "HND",
+    "nivel": "region"
+  },
+  "Valle": {
+    "pais": "HND",
+    "nivel": "region"
+  },
+  "Atlántida": {
+    "pais": "HND",
+    "nivel": "region"
+  },
+  "Comayagua": {
+    "pais": "HND",
+    "nivel": "region"
+  },
+  "Copán": {
+    "pais": "HND",
+    "nivel": "region"
+  },
+  "Cortés": {
+    "pais": "HND",
+    "nivel": "region"
+  },
+  "Francisco Morazán": {
+    "pais": "HND",
+    "nivel": "region"
+  },
+  "Intibucá": {
+    "pais": "HND",
+    "nivel": "region"
+  },
+  "La Paz": {
+    "pais": "HND",
+    "nivel": "region"
+  },
+  "Lempira": {
+    "pais": "HND",
+    "nivel": "region"
+  },
+  "Ocotepeque": {
+    "pais": "HND",
+    "nivel": "region"
+  },
+  "Santa Bárbara": {
+    "pais": "HND",
+    "nivel": "region"
+  },
+  "Yoro": {
+    "pais": "HND",
+    "nivel": "region"
+  },
+  "El Salvador": {
+    "pais": "SLV",
+    "nivel": "pais"
+  },
+  "Nicaragua": {
+    "pais": "NIC",
+    "nivel": "pais"
+  },
+  "Rio San Juan": {
+    "pais": "NIC",
+    "nivel": "region"
+  },
+  "Boaco": {
+    "pais": "NIC",
+    "nivel": "region"
+  },
+  "Chontales": {
+    "pais": "NIC",
+    "nivel": "region"
+  },
+  "Managua": {
+    "pais": "NIC",
+    "nivel": "region"
+  },
+  "Leon": {
+    "pais": "NIC",
+    "nivel": "region"
+  },
+  "Chinandega": {
+    "pais": "NIC",
+    "nivel": "region"
+  },
+  "Madriz": {
+    "pais": "NIC",
+    "nivel": "region"
+  },
+  "Estelí": {
+    "pais": "NIC",
+    "nivel": "region"
+  },
+  "Nueva Segovia": {
+    "pais": "NIC",
+    "nivel": "region"
+  },
+  "Matagalpa (Departemento)": {
+    "pais": "NIC",
+    "nivel": "region"
+  },
+  "North Carribean Coast Autonomous Region": {
+    "pais": "NIC",
+    "nivel": "region"
+  },
+  "South Atlantic Autonomous Region": {
+    "pais": "NIC",
+    "nivel": "region"
+  },
+  "Jinotega (Departamento)": {
+    "pais": "NIC",
+    "nivel": "region"
+  },
+  "Carazo": {
+    "pais": "NIC",
+    "nivel": "region"
+  },
+  "Granada": {
+    "pais": "NIC",
+    "nivel": "region"
+  },
+  "Masaya": {
+    "pais": "NIC",
+    "nivel": "region"
+  },
+  "Rivas": {
+    "pais": "NIC",
+    "nivel": "region"
+  },
+  "Costa Rica": {
+    "pais": "CRI",
+    "nivel": "pais"
+  },
+  "Provincia Heredia": {
+    "pais": "CRI",
+    "nivel": "region"
+  },
+  "Provincia Guanacaste": {
+    "pais": "CRI",
+    "nivel": "region"
+  },
+  "Provincia Alajuela": {
+    "pais": "CRI",
+    "nivel": "region"
+  },
+  "Provincia San José": {
+    "pais": "CRI",
+    "nivel": "region"
+  },
+  "Provincia Puntarenas": {
+    "pais": "CRI",
+    "nivel": "region"
+  },
+  "Provincia Cartago": {
+    "pais": "CRI",
+    "nivel": "region"
+  },
+  "Provincia Limón": {
+    "pais": "CRI",
+    "nivel": "region"
+  },
+  "The Republic of Panama": {
+    "pais": "PAN",
+    "nivel": "pais"
+  },
+  "Provincia de Bocas del Toro": {
+    "pais": "PAN",
+    "nivel": "region"
+  },
+  "Colón Province": {
+    "pais": "PAN",
+    "nivel": "region"
+  },
+  "Provincia de Darién": {
+    "pais": "PAN",
+    "nivel": "region"
+  },
+  "Comarca Emberá-Wounaan": {
+    "pais": "PAN",
+    "nivel": "region"
+  },
+  "Comarca Guna Yala": {
+    "pais": "PAN",
+    "nivel": "region"
+  },
+  "Provincia de Herrera": {
+    "pais": "PAN",
+    "nivel": "region"
+  },
+  "Provincia de Los Santos": {
+    "pais": "PAN",
+    "nivel": "region"
+  },
+  "Comarca Ngäbe-Buglé": {
+    "pais": "PAN",
+    "nivel": "region"
+  },
+  "Provincia de Panamá Oeste": {
+    "pais": "PAN",
+    "nivel": "region"
+  },
+  "Provincia de Panamá": {
+    "pais": "PAN",
+    "nivel": "region"
+  },
+  "Provincia de Veraguas": {
+    "pais": "PAN",
+    "nivel": "region"
+  },
+  "Provincia de Chiriquí": {
+    "pais": "PAN",
+    "nivel": "region"
+  },
+  "Provincia de Coclé": {
+    "pais": "PAN",
+    "nivel": "region"
+  },
   "Puerto Rico": {
     "pais": "PRI",
     "nivel": "pais"

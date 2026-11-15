@@ -192,7 +192,7 @@ def explicar_ia(c, pregunta, historial):
         'Menciona otras variables solo si ayudan a explicar la seleccionada, y dilo de forma explícita '
         '(por ejemplo: "esto podría relacionarse con..."). '
         'Tu público son estudiantes de secundaria y universidad: habla de forma cercana y sencilla, '
-        'con frases cortas y ejemplos de la vida diaria del Caribe. Evita la jerga técnica; si usas un término '
+        'con frases cortas y ejemplos de la vida diaria del Caribe y Centroamérica. Evita la jerga técnica; si usas un término '
         'como p-valor, tendencia o anomalía, explícalo en pocas palabras. '
         'Cuando pidan acciones, da ideas concretas que pueda entender cualquiera (qué puede hacer la comunidad, '
         'la escuela, el gobierno o cada persona). '

@@ -1,6 +1,7 @@
 // ===== Configuración =====
-const CENTRO_CARIBE = [18.5, -72];
-const ZOOM_INICIAL = 6;
+// Centro para ver el Caribe y Centroamérica juntos
+const CENTRO_CARIBE = [16, -78];
+const ZOOM_INICIAL = 5;
 
 // Dónde están los GeoJSON
 const RUTA_GEO = '../datos/geo/';
@@ -11,7 +12,15 @@ const PAISES = [
   { iso: 'DOM', archivo: 'geoBoundaries-DOM-ADM0_simplified.geojson', regiones: 'DOM-regiones.geojson' },
   { iso: 'JAM', archivo: 'geoBoundaries-JAM-ADM0_simplified.geojson', regiones: null },
   { iso: 'BHS', archivo: 'geoBoundaries-BHS-ADM0_simplified.geojson', regiones: 'geoBoundaries-BHS-ADM1_simplified.geojson' },
-  { iso: 'PRI', archivo: 'pr.json', regiones: null }
+  { iso: 'PRI', archivo: 'pr.json', regiones: null },
+  // Centroamérica
+  { iso: 'GTM', archivo: 'geoBoundaries-GTM-ADM0_simplified.geojson', regiones: 'geoBoundaries-GTM-ADM1_simplified.geojson' },
+  { iso: 'BLZ', archivo: 'geoBoundaries-BLZ-ADM0_simplified.geojson', regiones: 'geoBoundaries-BLZ-ADM1_simplified.geojson' },
+  { iso: 'HND', archivo: 'geoBoundaries-HND-ADM0_simplified.geojson', regiones: 'geoBoundaries-HND-ADM1_simplified.geojson' },
+  { iso: 'SLV', archivo: 'geoBoundaries-SLV-ADM0_simplified.geojson', regiones: 'geoBoundaries-SLV-ADM1_simplified.geojson' },
+  { iso: 'NIC', archivo: 'geoBoundaries-NIC-ADM0_simplified.geojson', regiones: 'geoBoundaries-NIC-ADM1_simplified.geojson' },
+  { iso: 'CRI', archivo: 'geoBoundaries-CRI-ADM0_simplified.geojson', regiones: 'geoBoundaries-CRI-ADM1_simplified.geojson' },
+  { iso: 'PAN', archivo: 'geoBoundaries-PAN-ADM0_simplified.geojson', regiones: 'geoBoundaries-PAN-ADM1_simplified.geojson' }
 ];
 
 // Nombres en español para mostrar (la llave sigue siendo el shapeName original)
@@ -21,9 +30,25 @@ const NOMBRES_ES = {
   'Dominican Republic': 'República Dominicana',
   'Jamaica': 'Jamaica',
   'Commonwealth of The Bahamas': 'Bahamas',
-  'Puerto Rico': 'Puerto Rico'
+  'Puerto Rico': 'Puerto Rico',
+  'Belize': 'Belice',
+  'Panama': 'Panamá',
+  'The Republic of Panama': 'Panamá',
+  // Regiones de Centroamérica que vienen en inglés o con nombres raros
+  'Belize (Belice)': 'Belize (distrito)',
+  'Guatemala (Guatemala)': 'Guatemala (departamento)',
+  'Bay Islands': 'Islas de la Bahía',
+  'Leon': 'León',
+  'Rio San Juan': 'Río San Juan',
+  'Matagalpa (Departemento)': 'Matagalpa',
+  'Jinotega (Departamento)': 'Jinotega',
+  'North Carribean Coast Autonomous Region': 'Costa Caribe Norte',
+  'South Atlantic Autonomous Region': 'Costa Caribe Sur',
+  'Colón Province': 'Colón'
 };
-const nombreBonito = nombre => NOMBRES_ES[nombre] || nombre;
+// Quita prefijos largos: "Provincia de Coclé" -> "Coclé", "Departamento de La Paz" -> "La Paz"
+const PREFIJOS = /^(Provincia de |Provincia |Departamento de )/;
+const nombreBonito = nombre => NOMBRES_ES[nombre] || nombre.replace(PREFIJOS, '');
 
 // Estilos de las zonas
 const ESTILO_NORMAL  = { color: '#1fb6a6', weight: 1, fillColor: '#1fb6a6', fillOpacity: 0.12, dashArray: null };
