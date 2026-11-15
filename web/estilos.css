@@ -265,3 +265,23 @@ body:has(#resultados:not([hidden])) #leyenda { display: none; }
   padding: 0 14px 0 20px;
 }
 #tipo-busqueda option { background: #0b1d3a; color: #fff; }
+
+/* Centro del MAPA visible (a la derecha del panel de 400px): ahí van el buscador y el aviso, alineados */
+:root { --centro-mapa: calc(50vw + 200px); }
+#barra { position: fixed; }
+.buscador {
+  position: absolute; left: var(--centro-mapa); transform: translateX(-50%);
+  width: min(780px, calc(100vw - 460px));
+}
+#aviso { left: var(--centro-mapa); }
+@media (max-width: 900px) {
+  :root { --centro-mapa: calc(50vw + 110px); }
+  .buscador { width: calc(100vw - 280px); }
+}
+/* El "temblor" de error mantiene el centrado */
+@keyframes temblar-centrado {
+  0%, 100% { transform: translateX(-50%); }
+  25% { transform: translateX(calc(-50% - 6px)); }
+  75% { transform: translateX(calc(-50% + 6px)); }
+}
+.buscador.error { animation: temblar-centrado 0.3s; }
