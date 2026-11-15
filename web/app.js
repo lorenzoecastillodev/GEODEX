@@ -441,30 +441,45 @@ function explicarP(p) {
 
 // Si el servidor no manda proyección, se calcula aquí:
 // línea de tendencia alargada hasta 2030 + el patrón promedio de cada mes
-function calcularProyeccion(d) {
-  if (d.proyeccion?.valores?.length) return d.proyeccion;
-  const n = d.valores?.length;
-  if (!n || !d.tendencia?.length) return null;
-
-  // patrón de cada mes: cuánto se aleja, en promedio, de la tendencia
+// patrón de cada mes: cuánto se aleja, en promedio, de la tendencia
+function patronMensual(d) {
   const suma = Array(12).fill(0), cuenta = Array(12).fill(0);
   d.fechas.forEach((fecha, i) => {
     const mes = Number(fecha.slice(5, 7)) - 1;
     suma[mes] += d.valores[i] - d.tendencia[i];
     cuenta[mes]++;
   });
-  const patron = suma.map((s, m) => cuenta[m] ? s / cuenta[m] : 0);
+  return suma.map((s, m) => cuenta[m] ? s / cuenta[m] : 0);
+}
+
+// Variables que no pueden ser negativas (ni pasar de 100 %)
+function limitarValor(variable, v) {
+  if (variable === 'PRECTOTCORR') return Math.max(0, v);
+  if (variable === 'GWETROOT') return Math.min(100, Math.max(0, v));
+  if (variable === 'CAUDAL') return Math.max(0, v);
+  return v;
+}
+
+// Lo que "espera" el modelo cada mes: tendencia + patrón del mes.
+// Sirve para comparar 2025 y 2030 con la misma regla (y al mismo nivel que los datos reales).
+function valoresModelo(d) {
+  const patron = patronMensual(d);
+  return d.fechas.map((fecha, i) =>
+    limitarValor(d.variable, d.tendencia[i] + patron[Number(fecha.slice(5, 7)) - 1]));
+}
+
+function calcularProyeccion(d) {
+  if (d.proyeccion?.valores?.length) return d.proyeccion;
+  const n = d.valores?.length;
+  if (!n || !d.tendencia?.length) return null;
+
+  const patron = patronMensual(d);
 
   const pasoMensual = typeof d.pendiente_anual === 'number'
     ? d.pendiente_anual / 12
     : (d.tendencia[n - 1] - d.tendencia[0]) / (n - 1);
 
-  const limitar = v => {
-    if (d.variable === 'PRECTOTCORR') return Math.max(0, v);
-    if (d.variable === 'GWETROOT') return Math.min(100, Math.max(0, v));
-    if (d.variable === 'CAUDAL') return Math.max(0, v);
-    return v;
-  };
+  const limitar = v => limitarValor(d.variable, v);
 
   let [anio, mes] = d.fechas[n - 1].split('-').map(Number);
   let i = n - 1;
@@ -484,7 +499,9 @@ const promedio = lista => lista.reduce((a, b) => a + b, 0) / lista.length;
 
 function mostrarResultados(d) {
   const unidad = infoVariable(d.variable)?.unidad ?? '';
-  const clase = !d.significativo ? 'neutro' : d.cambio_total >= 0 ? 'sube' : 'baja';
+  // verde si el cambio es bueno para la gente, rojo si es malo (depende de la variable)
+  const efecto = efectoCambio(d.variable, d.significativo, d.cambio_total);
+  const clase = { bueno: 'sube', malo: 'baja', neutro: 'neutro' }[efecto];
 
   document.getElementById('res-titulo').textContent =
     `${nombreVariable(d.variable)} · ${nombreBonito(d.zona)}`;
@@ -512,9 +529,11 @@ function mostrarResultados(d) {
   if (!d.significativo) texto += ' Aunque no es significativo, con más años de datos podría llegar a serlo.';
   const u = unidad ? ' ' + unidad : '';
   if (hayProyeccion) {
-    const actual = promedio(d.valores.slice(-12));
+    // Los dos números salen del MISMO modelo (tendencia + patrón de cada mes),
+    // así la comparación 2025 → 2030 siempre va en la misma dirección que el % de cambio.
+    const actual = promedio(valoresModelo(d).slice(-12));
     const futuro = promedio(proyeccion.valores.slice(-12));
-    texto += ` Si la tendencia sigue igual, el promedio pasaría de ${actual.toFixed(2)}${u} ` +
+    texto += ` Si la tendencia sigue igual, el promedio esperado pasaría de ${actual.toFixed(2)}${u} ` +
              `(${d.fechas.at(-1).slice(0, 4)}) a ${futuro.toFixed(2)}${u} en ${ANIO_PROYECCION}.`;
   } else if (!d.significativo) {
     texto += ' No se proyecta a futuro porque no hay una tendencia clara.';
@@ -527,6 +546,11 @@ function mostrarResultados(d) {
 
   // se muestra antes de dibujar para que la gráfica tome el tamaño real
   document.getElementById('resultados').hidden = false;
+
+  if (d.variable === 'CAUDAL') {
+    graficaBarrasAnuales(d, proyeccion, hayProyeccion, unidad);
+    return;
+  }
 
   const lineas = [
     { x: d.fechas, y: d.valores, name: nombreVariable(d.variable),
@@ -556,7 +580,116 @@ function mostrarResultados(d) {
   }, { responsive: true, displayModeBar: false });
 }
 
+// ===== Gráfica de barras por año (caudal) =====
+
+// Agrupa una serie mensual en promedios por año: { anios: [2001, ...], valores: [...] }
+function promediosPorAnio(fechas, valores) {
+  const grupos = new Map();
+  fechas.forEach((fecha, i) => {
+    const anio = Number(fecha.slice(0, 4));
+    if (!grupos.has(anio)) grupos.set(anio, []);
+    grupos.get(anio).push(valores[i]);
+  });
+  const anios = [...grupos.keys()];
+  return { anios, valores: anios.map(a => promedio(grupos.get(a))) };
+}
+
+function graficaBarrasAnuales(d, proyeccion, hayProyeccion, unidad) {
+  const real = promediosPorAnio(d.fechas, d.valores);
+  const modelo = promediosPorAnio(d.fechas, valoresModelo(d));
+  const media = promedio(real.valores);
+  const u = unidad ? ' ' + unidad : '';
+
+  // Años con más agua que el promedio (azul) y con menos agua (café)
+  const humedos = { x: [], y: [] }, secos = { x: [], y: [] };
+  real.anios.forEach((anio, i) => {
+    const grupo = real.valores[i] >= media ? humedos : secos;
+    grupo.x.push(anio);
+    grupo.y.push(real.valores[i]);
+  });
+
+  const formato = `%{x}: %{y:.1f}${u}<extra></extra>`;
+  const trazos = [
+    { type: 'bar', x: humedos.x, y: humedos.y, name: 'Más agua que el promedio',
+      marker: { color: '#4a90d9' }, hovertemplate: formato },
+    { type: 'bar', x: secos.x, y: secos.y, name: 'Menos agua (año seco)',
+      marker: { color: '#b5835a' }, hovertemplate: formato }
+  ];
+
+  // Línea de tendencia: mismo modelo que el resumen, promediado por año
+  const tendencia = { x: [...modelo.anios], y: [...modelo.valores] };
+
+  if (hayProyeccion) {
+    const futuro = promediosPorAnio(proyeccion.fechas, proyeccion.valores);
+    trazos.push({ type: 'bar', x: futuro.anios, y: futuro.valores, name: `Proyección a ${ANIO_PROYECCION}`,
+      marker: { color: 'rgba(245,176,65,0.45)', line: { color: '#f5b041', width: 1.5 } },
+      hovertemplate: `%{x} (proyección): %{y:.1f}${u}<extra></extra>` });
+    tendencia.x.push(...futuro.anios);
+    tendencia.y.push(...futuro.valores);
+  }
+
+  trazos.push({ type: 'scatter', mode: 'lines', x: tendencia.x, y: tendencia.y, name: 'Tendencia',
+    line: { color: '#1fb6a6', width: 3, dash: 'dot' }, hoverinfo: 'skip' });
+
+  const ultimoAnio = real.anios.at(-1);
+  Plotly.newPlot('grafica', trazos, {
+    height: 240,
+    autosize: true,
+    barmode: 'overlay',
+    bargap: 0.15,
+    paper_bgcolor: 'rgba(0,0,0,0)', plot_bgcolor: 'rgba(0,0,0,0)',
+    font: { color: '#fff', size: 13 },
+    margin: { t: 10, r: 10, b: 40, l: 55 },
+    xaxis: { gridcolor: 'rgba(255,255,255,0.08)', tickformat: 'd', dtick: 5 },
+    yaxis: { gridcolor: 'rgba(255,255,255,0.08)', title: unidad, rangemode: 'tozero' },
+    legend: { orientation: 'h', y: 1.18 },
+    shapes: [
+      // promedio de todo el periodo
+      { type: 'line', xref: 'paper', yref: 'y', x0: 0, x1: 1, y0: media, y1: media,
+        line: { color: 'rgba(255,255,255,0.45)', width: 1, dash: 'dash' } },
+      // separación entre datos reales y proyección
+      ...(hayProyeccion ? [{ type: 'line', xref: 'x', yref: 'paper',
+        x0: ultimoAnio + 0.5, x1: ultimoAnio + 0.5, y0: 0, y1: 1,
+        line: { color: 'rgba(255,255,255,0.4)', width: 1, dash: 'dot' } }] : [])
+    ],
+    annotations: [{ xref: 'paper', yref: 'y', x: 0, y: media, xanchor: 'left', yanchor: 'bottom',
+      text: `promedio ${media.toFixed(1)}${u}`, showarrow: false,
+      font: { size: 11, color: 'rgba(255,255,255,0.7)' } }]
+  }, { responsive: true, displayModeBar: false });
+}
+
 // ===== Mapa de colores por región =====
+
+// ¿Que esta variable SUBA es malo para la gente?
+//   true  -> subir = rojo (malo), bajar = verde (bueno)   ej: temperatura
+//   false -> subir = verde (bueno), bajar = rojo (malo)   ej: lluvia, humedad, caudal (menos agua = sequía)
+const SUBIR_ES_MALO = {
+  T2M: true,
+  T2M_MAX: true,
+  PRECTOTCORR: false,
+  GWETROOT: false,
+  CAUDAL: false
+};
+
+// 'malo', 'bueno' o 'neutro' según la variable y hacia dónde cambió
+function efectoCambio(variable, significativo, cambio) {
+  if (!significativo || cambio === 0) return 'neutro';
+  const subio = cambio > 0;
+  return subio === Boolean(SUBIR_ES_MALO[variable]) ? 'malo' : 'bueno';
+}
+
+const COLOR_EFECTO = { malo: '#e74c3c', bueno: '#2ecc71', neutro: '#8a9bb5' };
+
+// La leyenda dice qué significa cada color para ESTA variable
+function actualizarLeyenda(variable) {
+  const filas = document.querySelectorAll('#leyenda div');
+  if (filas.length < 2) return;
+  const subirMalo = Boolean(SUBIR_ES_MALO[variable]);
+  filas[0].innerHTML = `<span class="muestra" style="background:${COLOR_EFECTO.malo}"></span>` +
+    (subirMalo ? 'Aumentó (malo)' : 'Disminuyó (malo)');
+  filas[1].innerHTML = `<span class="muestra" style="background:${COLOR_EFECTO.bueno}"></span>` +
+    (subirMalo ? 'Disminuyó (bueno)' : 'Aumentó (bueno)');
+}
 
 function mapaFalso() {
   const resultado = {};
@@ -584,6 +717,7 @@ function pintarMapa(datos, { variable, desde, hasta }) {
   const unidad = infoVariable(variable)?.unidad ?? '';
   document.getElementById('leyenda-titulo').textContent =
     `${nombreVariable(variable)} · ${desde}–${hasta}`;
+  actualizarLeyenda(variable);
   const regiones = Object.values(capasPorNombre)
     .filter(capa => capa.tipo === 'provincias' && capa.iso === paisActual);
 
@@ -599,7 +733,7 @@ function pintarMapa(datos, { variable, desde, hasta }) {
       capa.setTooltipContent(`${nombreBonito(nombre)} · sin datos`);
     } else {
       const intensidad = Math.abs(dato.pendiente_decada) / maximo;
-      const color = !dato.significativo ? '#8a9bb5' : dato.pendiente_decada >= 0 ? '#2ecc71' : '#e74c3c';
+      const color = COLOR_EFECTO[efectoCambio(variable, dato.significativo, dato.pendiente_decada)];
       capa.estiloBase = {
         color: '#0b1d3a', weight: 1, dashArray: null, fillColor: color,
         fillOpacity: dato.significativo ? 0.3 + 0.55 * intensidad : 0.3
