@@ -218,3 +218,40 @@ body:has(#resultados:not([hidden])) #leyenda { display: none; }
 /* La ayuda del "?" siempre encima de todo y con fondo sólido */
 .tarjeta:has(.btn-ayuda:hover), .tarjeta:has(.btn-ayuda:focus) { position: relative; z-index: 3000; }
 .btn-ayuda:hover::after, .btn-ayuda:focus::after { background: #0b1d3a; }
+
+/* Diagnóstico dentro del panel; el gráfico conserva espacio para leerlo. */
+.res-cabecera { gap: 12px; }
+.res-cabecera h2 { flex: 1; }
+#abrir-diagnostico, .diag-acciones button, #diag-form button {
+  background: #123d50; color: #b6fff2; border: 1px solid var(--turquesa);
+  border-radius: 8px; padding: 8px 10px; cursor: pointer;
+}
+.res-contenido { display: grid; grid-template-columns: minmax(0, 1fr); gap: 18px; }
+.res-principal { min-width: 0; display: flex; flex-direction: column; gap: 8px; }
+#resultados.con-diagnostico { max-height: calc(100vh - 115px); }
+.con-diagnostico .res-contenido { grid-template-columns: minmax(0, 2fr) minmax(300px, 1fr); }
+.con-diagnostico .tarjetas { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+#diagnostico { min-width: 0; background: var(--marino); border: 1px solid #27576b; border-radius: 12px; padding: 14px; }
+#diagnostico[hidden] { display: none; }
+.diag-cabecera { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.diag-cabecera h3 { margin: 0; font-size: 17px; }
+#cerrar-diagnostico { color: white; background: transparent; border: 0; font-size: 26px; cursor: pointer; }
+#diag-contexto { color: #b5c8e1; font-size: 12px; }
+#diag-estado { color: #8ee8db; font-size: 12px; line-height: 1.5; }
+.diag-acciones { display: flex; flex-wrap: wrap; gap: 6px; }
+.diag-acciones button { font-size: 12px; text-align: left; }
+#diag-mensajes { max-height: 330px; overflow-y: auto; scrollbar-width: thin; margin: 12px 0; }
+.diag-bloque { padding: 10px 0; border-bottom: 1px solid #253b55; }
+.diag-bloque h4 { margin: 0 0 6px; font-size: 14px; color: #8ee8db; }
+.diag-bloque p { margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; font-size: 13px; line-height: 1.6; }
+.diag-usuario { padding: 10px; background: #18344e; border-radius: 8px; }
+#diag-form { display: grid; gap: 6px; font-size: 12px; }
+#diag-pregunta { width: 100%; box-sizing: border-box; resize: vertical; background: #13294d; color: white; border: 1px solid #46617d; border-radius: 8px; padding: 10px; font: inherit; }
+#diagnostico button:disabled { opacity: 0.5; cursor: wait; }
+#diagnostico button:focus-visible, #abrir-diagnostico:focus-visible { outline: 2px solid white; outline-offset: 3px; }
+@media (max-width: 900px) {
+  #resultados { left: 12px; right: 12px; }
+  .con-diagnostico .res-contenido { grid-template-columns: minmax(0, 1fr); }
+  .res-cabecera { flex-wrap: wrap; }
+  .tarjetas { flex-wrap: wrap; }
+}

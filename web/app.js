@@ -63,6 +63,8 @@ const capaPaisPorIso = {};  // ISO -> capa del país
 
 // ===== Elegir y limpiar zona =====
 function elegirZona(nombre, capa) {
+  window.reiniciarDiagnostico?.();
+  document.getElementById("resultados").hidden = true;
   if (capaElegida) capaElegida.setStyle(estiloBase(capaElegida));
 
   zonaElegida = nombre;
@@ -81,6 +83,7 @@ function elegirZona(nombre, capa) {
 }
 
 function limpiarSeleccion() {
+  window.reiniciarDiagnostico?.();
   if (capaElegida) capaElegida.setStyle(estiloBase(capaElegida));
   zonaElegida = null;
   capaElegida = null;
@@ -501,6 +504,7 @@ function calcularProyeccion(d) {
 const promedio = lista => lista.reduce((a, b) => a + b, 0) / lista.length;
 
 function mostrarResultados(d) {
+  window.prepararDiagnostico?.(d);
   const unidad = infoVariable(d.variable)?.unidad ?? '';
   // verde si el cambio es bueno para la gente, rojo si es malo (depende de la variable)
   const efecto = efectoCambio(d.variable, d.significativo, d.cambio_total);
@@ -834,6 +838,7 @@ async function actualizarMapa() {
 // al cambiar variable o años: repintar y cerrar resultados viejos
 ['variable', 'desde', 'hasta'].forEach(id =>
   document.getElementById(id).addEventListener('change', () => {
+    window.reiniciarDiagnostico?.();
     document.getElementById('resultados').hidden = true;
     actualizarMapa();
   })
@@ -848,7 +853,8 @@ document.getElementById('analizar').addEventListener('click', async () => {
   boton.disabled = true;
   boton.textContent = 'Analizando...';
   try {
-    mostrarResultados(await obtenerAnalisis(params));
+    const datos = await obtenerAnalisis(params);
+    if (JSON.stringify(params) === JSON.stringify(leerParametros())) mostrarResultados(datos);
   } catch (e) {
     console.error(e);
     alert(e instanceof TypeError
