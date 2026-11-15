@@ -177,7 +177,7 @@ def api_diagnostico():
         return jsonify(error='Zona desconocida.'), 400
     if not isinstance(variable, str) or variable not in VARIABLES_DISPONIBLES:
         return jsonify(error=MENSAJE_VARIABLES), 400
-    if accion not in ('diagnostico', 'explicar', 'comparar', 'impacto', 'preguntar'):
+    if accion not in ('diagnostico', 'explicar', 'comparar', 'impacto', 'causas', 'futuro', 'preguntar'):
         return jsonify(error='Acción no válida.'), 400
     pregunta = datos.get('pregunta', '')
     historial = datos.get('historial', [])
@@ -196,10 +196,25 @@ def api_diagnostico():
     except (ValueError, TypeError) as e:
         return jsonify(error=str(e)), 400
     secciones = diagnostico_local(c, accion)
-    preguntas = {'diagnostico': 'Genera un diagnóstico breve con tres apartados: qué pasa, posibles causas y posibles implicaciones. Vincula las hipótesis con los datos de las variables disponibles.',
-                 'explicar': 'Explica el resultado de la variable principal.',
-                 'comparar': 'Compara la variable principal con las demás.',
-                 'impacto': 'Explica posibles causas y sus posibles implicaciones para la zona y período seleccionados, considerando la variable principal y las demás disponibles. Distingue lo observado de los efectos posibles; no afirmes daños, causas ni impactos locales que los datos no demuestran.'}
+    preguntas = {
+        'diagnostico': ('Haz un diagnóstico breve con tres apartados: Qué está pasando (con el cambio, el p-valor y la comparación '
+                        'de los primeros y últimos 5 años), Posibles causas (relacionando con las otras variables y con eventos '
+                        'reales de los años destacados) y Qué podría implicar (incluye la proyección a 2030 con su rango).'),
+        'explicar': ('Explica el resultado de la variable seleccionada para un estudiante: qué significa el cambio por década, '
+                     'el cambio total en %, el p-valor, la diferencia entre los primeros y los últimos 5 años, y el mes más '
+                     'alto y más bajo. Usa los números exactos.'),
+        'comparar': ('Compara la variable seleccionada con cada una de las otras: r mes a mes y entre años con su fuerza, '
+                     'desfases, si sus tendencias van en la misma dirección y un año concreto donde se note. Ordena de la '
+                     'relación más fuerte a la más débil.'),
+        'impacto': ('Explica cómo afecta este cambio a la gente de esta zona (agua, agricultura, salud, energía), con los '
+                    'números del análisis y la proyección a 2030. Distingue lo observado de los efectos posibles y termina '
+                    'con 3 acciones concretas.'),
+        'causas': ('¿Por qué cambió así esta variable? Relaciónalo con las otras variables usando números y busca en internet '
+                   'eventos reales en este país en los años más altos y más bajos (huracanes, El Niño o La Niña, sequías, '
+                   'deforestación). Conecta cada evento con su año y su dato.'),
+        'futuro': ('¿Cómo cambiará en el futuro? Da el valor esperado para 2030, el cambio en % y el rango probable del 95 %, '
+                   'y explica en una frase de qué depende y qué tan confiable es.'),
+    }
     texto = None
     try:
         if not puede_usar_ia():
@@ -211,7 +226,9 @@ def api_diagnostico():
         # Nunca exponer claves ni detalles internos del proveedor.
         aviso = mensaje_error_ia(error)
     else:
-        aviso = ('Interpretación con Gemini basada en los datos del sistema.' if texto else
+        aviso = (('Interpretación con Gemini basada en los datos del sistema'
+                  + (' y en una búsqueda en internet.' if getattr(texto, 'busqueda', False)
+                     else '. (Esta vez no buscó en internet.)')) if texto else
                  'Falta la clave de Gemini. Arranca GEODEX con iniciar_lunyde.py para cargarla.')
     if not texto and accion != 'preguntar':
         aviso += ' Se muestra el diagnóstico calculado con datos.'

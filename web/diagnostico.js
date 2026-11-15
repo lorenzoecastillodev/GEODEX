@@ -16,10 +16,21 @@
     abrir.setAttribute('aria-expanded', String(abierto));
     redimensionar();
   }
+  // Mientras carga, solo se bloquea "Enviar". Los botones rápidos siguen activos:
+  // si se pulsa otro, se cancela la consulta anterior y se hace la nueva.
   function ocupado(valor) {
     panel.setAttribute('aria-busy', String(valor));
-    panel.querySelectorAll('.diag-acciones button, #diag-form button').forEach(b => b.disabled = valor);
+    panel.querySelectorAll('#diag-form button').forEach(b => b.disabled = valor);
   }
+  const MENSAJES_ESPERA = {
+    diagnostico: 'Analizando las 6 variables y buscando eventos de esos años…',
+    explicar: 'Preparando la explicación con los números del análisis…',
+    comparar: 'Comparando con las demás variables…',
+    impacto: 'Analizando cómo afecta a esta zona…',
+    causas: 'Buscando posibles causas en los datos y en internet (huracanes, El Niño…)…',
+    futuro: 'Calculando cómo podría cambiar hasta 2030…',
+    preguntar: 'Pensando la respuesta con los datos…'
+  };
   window.reiniciarDiagnostico = () => {
     version++;
     controlador?.abort();
@@ -41,14 +52,26 @@
     const h = document.createElement('h4'); h.textContent = titulo;
     const p = document.createElement('p'); p.textContent = texto;
     bloque.append(h, p); mensajes.append(bloque);
+    return bloque;
   }
+  // Lleva la vista al bloque nuevo para que siempre se vea la última respuesta
+  const mostrarBloque = bloque => requestAnimationFrame(() =>
+    mensajes.scrollTo({ top: bloque.offsetTop - mensajes.offsetTop - 8, behavior: 'smooth' }));
+  const nombreAccion = accion =>
+    panel.querySelector(`[data-diag="${accion}"]`)?.textContent.trim() || 'Diagnóstico';
   async function consultar(accion, texto = '') {
     if (!filtros) return;
     controlador?.abort(); controlador = new AbortController();
     const actual = ++version;
-    ocupado(true); estado.textContent = 'Analizando las variables disponibles…';
-    if (texto) agregar('Tu pregunta', texto, 'diag-usuario');
-    const temporizador = setTimeout(() => controlador?.abort(), 60000);
+    ocupado(true); estado.textContent = MENSAJES_ESPERA[accion] || 'Analizando…';
+    panel.querySelectorAll('[data-diag]').forEach(b => b.classList.toggle('activo', b.dataset.diag === accion));
+    // Las respuestas se van ACUMULANDO (como un chat): nada se borra al pulsar otro botón
+    mensajes.querySelectorAll('.diag-cargando').forEach(b => b.remove());
+    if (texto) mostrarBloque(agregar('Tu pregunta', texto, 'diag-usuario'));
+    else if (accion !== 'diagnostico') mostrarBloque(agregar('Tu pregunta', nombreAccion(accion), 'diag-usuario'));
+    const cargando = agregar('…', MENSAJES_ESPERA[accion] || 'Analizando…', 'diag-cargando');
+    mostrarBloque(cargando);
+    const temporizador = setTimeout(() => controlador?.abort(), 100000);   // la búsqueda en internet puede tardar
     try {
       const r = await fetch(`${API}/api/diagnostico`, {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
@@ -58,10 +81,12 @@
       const d = await r.json();
       if (!r.ok) throw new Error(d.error || 'No se pudo generar el diagnóstico.');
       if (actual !== version) return;
-      if (accion !== 'preguntar') mensajes.replaceChildren();
+      cargando.remove();
       estado.textContent = d.aviso;
-      if (d.texto) agregar(accion === 'preguntar' ? 'Respuesta' : 'Interpretación con IA', d.texto);
-      else d.secciones.forEach(s => agregar(s.titulo, s.texto));
+      const titulo = accion === 'preguntar' ? 'Respuesta' : accion === 'diagnostico' ? 'Diagnóstico' : nombreAccion(accion);
+      const primero = d.texto ? agregar(titulo, d.texto)
+        : d.secciones.map(s => agregar(s.titulo, s.texto))[0];
+      if (primero) mostrarBloque(primero);
       if (!d.texto && !d.secciones.length) return;
       const respuesta = d.texto || d.secciones.map(s => `${s.titulo}: ${s.texto}`).join('\n');
       historial.push({ role: 'user', content: texto || accion },
@@ -70,12 +95,16 @@
       if (texto) pregunta.value = '';
     } catch (e) {
       if (actual === version) {
-        estado.textContent = e.name === 'AbortError' ? 'La consulta tardó demasiado. Puedes reintentar con una acción.'
+        cargando.remove();
+        estado.textContent = e.name === 'AbortError' ? 'La consulta tardó demasiado. Puedes reintentar con un botón.'
           : `No se pudo completar: ${e.message}. Comprueba que el servidor esté actualizado.`;
       }
     } finally {
       clearTimeout(temporizador);
-      if (actual === version) ocupado(false);
+      if (actual === version) {
+        ocupado(false);
+        panel.querySelectorAll('[data-diag]').forEach(b => b.classList.remove('activo'));
+      }
     }
   }
   abrir.onclick = () => {

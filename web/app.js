@@ -74,6 +74,10 @@ L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_D
   attribution: '© Esri'
 }).addTo(mapa);
 
+// Crédito de las fuentes de datos (abajo a la derecha del mapa)
+mapa.attributionControl.setPrefix(false);
+mapa.attributionControl.addAttribution('Datos: NASA POWER · Google Earth Engine (NASA MODIS) · GEOGLOWS');
+
 // Botones de zoom propios
 document.getElementById('zoom-mas').onclick = () => mapa.zoomIn();
 document.getElementById('zoom-menos').onclick = () => mapa.zoomOut();

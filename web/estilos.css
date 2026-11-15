@@ -285,3 +285,16 @@ body:has(#resultados:not([hidden])) #leyenda { display: none; }
   75% { transform: translateX(calc(-50% + 6px)); }
 }
 .buscador.error { animation: temblar-centrado 0.3s; }
+/* Botón rápido que se está respondiendo */
+.diag-acciones button.activo { outline: 2px solid #8ee8db; outline-offset: 2px; }
+
+/* Más espacio para leer el chat del diagnóstico, y aviso de "cargando" */
+#diag-mensajes { max-height: min(55vh, 560px); }
+.diag-cargando p { font-style: italic; color: #8ee8db; animation: latido 1.4s ease-in-out infinite; }
+.diag-cargando h4 { display: none; }
+@keyframes latido { 0%, 100% { opacity: 0.45; } 50% { opacity: 1; } }
+
+/* Crédito de fuentes de datos */
+.leaflet-control-attribution.leaflet-control {
+  background: rgba(11, 29, 58, 0.85); color: #cfe3f5; font-size: 12px; padding: 3px 10px; border-top-left-radius: 6px;
+}
