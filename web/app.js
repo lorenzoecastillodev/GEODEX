@@ -573,14 +573,13 @@ function mostrarResultados(d) {
   }
 
   Plotly.newPlot('grafica', lineas, {
-    height: 240,
     autosize: true,
     paper_bgcolor: 'rgba(0,0,0,0)', plot_bgcolor: 'rgba(0,0,0,0)',
     font: { color: '#fff', size: 13 },
-    margin: { t: 10, r: 10, b: 40, l: 55 },
+    margin: { t: 10, r: 10, b: 80, l: 55 },   // espacio abajo para la leyenda
     xaxis: { gridcolor: 'rgba(255,255,255,0.08)' },
     yaxis: { gridcolor: 'rgba(255,255,255,0.08)', title: unidad },
-    legend: { orientation: 'h', y: 1.12 },
+    legend: { orientation: 'h', x: 0, y: -0.15, yanchor: 'top' },   // leyenda debajo: así no tapa la gráfica
     shapes: hayProyeccion ? [{
       type: 'line', xref: 'x', yref: 'paper',
       x0: d.fechas.at(-1), x1: d.fechas.at(-1), y0: 0, y1: 1,
@@ -695,16 +694,15 @@ function graficaBarrasAnuales(d, proyeccion, hayProyeccion, unidad) {
 
   const ultimoAnio = real.anios.at(-1);
   Plotly.newPlot('grafica', trazos, {
-    height: 240,
     autosize: true,
     barmode: 'overlay',
     bargap: 0.15,
     paper_bgcolor: 'rgba(0,0,0,0)', plot_bgcolor: 'rgba(0,0,0,0)',
     font: { color: '#fff', size: 13 },
-    margin: { t: 10, r: 10, b: 40, l: 55 },
+    margin: { t: 10, r: 10, b: 80, l: 55 },   // espacio abajo para la leyenda
     xaxis: { gridcolor: 'rgba(255,255,255,0.08)', tickformat: 'd', dtick: 5 },
     yaxis: { gridcolor: 'rgba(255,255,255,0.08)', title: unidad, rangemode: 'tozero' },
-    legend: { orientation: 'h', y: 1.18 },
+    legend: { orientation: 'h', x: 0, y: -0.15, yanchor: 'top' },   // leyenda debajo: así no tapa la gráfica
     shapes: [
       // promedio de todo el periodo
       { type: 'line', xref: 'paper', yref: 'y', x0: 0, x1: 1, y0: media, y1: media,

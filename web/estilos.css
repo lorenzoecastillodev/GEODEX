@@ -177,7 +177,7 @@ body { margin: 0; font-family: system-ui, Inter, sans-serif; color: #fff; backgr
 .neutro { color: var(--gris); }
 
 #resumen { margin: 0; font-style: italic; font-size: 15px; }
-#grafica { flex: none; height: 240px; overflow: hidden; }
+#grafica { flex: none; height: 320px; overflow: hidden; }
 
 /* ===== Botón "?" con explicación ===== */
 .btn-ayuda {
@@ -255,3 +255,6 @@ body:has(#resultados:not([hidden])) #leyenda { display: none; }
   .res-cabecera { flex-wrap: wrap; }
   .tarjetas { flex-wrap: wrap; }
 }
+
+/* Con el chat abierto la gráfica es más angosta: la hacemos más alta para que no se vea aplastada */
+.con-diagnostico #grafica { height: 400px; }
