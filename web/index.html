@@ -67,10 +67,12 @@
   <section id="resultados" hidden>
     <header class="res-cabecera">
       <h2 id="res-titulo"></h2>
+      <button id="abrir-diagnostico" type="button" aria-expanded="false" aria-controls="diagnostico">✦ Diagnóstico</button>
       <button id="cerrar-resultados" title="Cerrar">
         <svg class="icono" viewBox="0 0 24 24"><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg>
       </button>
     </header>
+    <div class="res-contenido"><div class="res-principal">
     <div class="tarjetas">
       <div class="tarjeta">
         <span>¿Cambio significativo?
@@ -98,6 +100,22 @@
 </div>
 
     <div id="grafica"></div>
+    </div>
+    <aside id="diagnostico" hidden aria-label="Diagnóstico personalizado">
+      <div class="diag-cabecera"><h3>Diagnóstico personalizado</h3><button id="cerrar-diagnostico" title="Cerrar diagnóstico">×</button></div>
+      <p id="diag-contexto"></p>
+      <p id="diag-estado" role="status" aria-live="polite"></p>
+      <div class="diag-acciones">
+        <button data-diag="explicar">Explícame este resultado</button>
+        <button data-diag="comparar">Compara con otras variables</button>
+        <button data-diag="impacto">¿Cómo afecta a esta zona?</button>
+      </div>
+      <div id="diag-mensajes" aria-live="polite"></div>
+      <form id="diag-form"><label for="diag-pregunta">Pregunta sobre este análisis</label>
+        <textarea id="diag-pregunta" rows="2" maxlength="1500" required placeholder="¿Cómo se relaciona con la lluvia?"></textarea>
+        <button type="submit">Enviar</button>
+      </form>
+    </aside></div>
   </section>
 
   <div id="aviso">
@@ -129,5 +147,6 @@
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
   <script src="app.js"></script>
+  <script src="diagnostico.js"></script>
 </body>
 </html>
