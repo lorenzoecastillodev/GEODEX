@@ -150,7 +150,8 @@ body { margin: 0; font-family: system-ui, Inter, sans-serif; color: #fff; backgr
 
 /* ===== Panel de resultados ===== */
 #resultados {
-  position: fixed; left: 380px; right: 100px; bottom: 20px; max-height: calc(100vh - 200px); overflow-y: auto; z-index: 1000;
+  /* misma altura que el panel izquierdo: empieza en 120px y termina a 20px del borde de abajo */
+  position: fixed; left: 380px; right: 100px; top: 120px; bottom: 20px; overflow-y: auto; z-index: 1000;
   background: rgba(19, 41, 77, 0.97); border: 1px solid rgba(255,255,255,0.15);
   border-radius: 14px; padding: 12px 18px; box-shadow: 0 12px 40px rgba(0,0,0,0.5);
   display: flex; flex-direction: column; gap: 6px;
@@ -167,7 +168,8 @@ body { margin: 0; font-family: system-ui, Inter, sans-serif; color: #fff; backgr
   flex: 1; background: var(--marino); border: 1px solid rgba(255,255,255,0.12);
   border-radius: 10px; padding: 6px 12px; display: flex; flex-direction: column; gap: 2px;
 }
-.tarjeta span { font-size: 14px; opacity: 0.8; }
+/* color en vez de opacity: con opacity, la ayuda del "?" salía transparente y debajo del texto */
+.tarjeta span { font-size: 14px; color: rgba(255, 255, 255, 0.8); }
 .tarjeta b { font-size: 22px; }
 .tarjeta small { font-size: 13px; opacity: 0.7; }
 .sube { color: #2ecc71; }
@@ -185,7 +187,8 @@ body { margin: 0; font-family: system-ui, Inter, sans-serif; color: #fff; backgr
 }
 .btn-ayuda:hover::after, .btn-ayuda:focus::after {
   content: attr(data-ayuda);
-  position: absolute; bottom: 140%; left: 50%; transform: translateX(-50%); z-index: 2000;
+  /* se abre hacia ABAJO para que no se corte con el borde de arriba del panel */
+  position: absolute; top: 140%; left: 50%; transform: translateX(-50%); z-index: 2000;
   width: 260px; padding: 10px 12px; border-radius: 10px;
   background: var(--marino); border: 1px solid var(--turquesa); box-shadow: 0 8px 24px rgba(0,0,0,0.5);
   color: #fff; font-size: 13px; font-weight: 400; font-style: normal; line-height: 1.4;
@@ -204,3 +207,14 @@ body { margin: 0; font-family: system-ui, Inter, sans-serif; color: #fff; backgr
 #resultados::-webkit-scrollbar-thumb { background: rgba(31, 182, 166, 0.5); border-radius: 999px; }
 
 .opcion:disabled { opacity: 0.4; cursor: not-allowed; }
+/* Con el panel de resultados abierto el mapa queda tapado, así que la leyenda
+   se esconde para no montarse encima de los resultados. Al cerrar, vuelve a salir. */
+body:has(#resultados:not([hidden])) #leyenda { display: none; }
+
+/* Las tarjetas no se cortan: si no caben, bajan a otra fila */
+.tarjetas { flex-wrap: wrap; }
+.tarjeta { min-width: 180px; }
+
+/* La ayuda del "?" siempre encima de todo y con fondo sólido */
+.tarjeta:has(.btn-ayuda:hover), .tarjeta:has(.btn-ayuda:focus) { position: relative; z-index: 3000; }
+.btn-ayuda:hover::after, .btn-ayuda:focus::after { background: #0b1d3a; }
