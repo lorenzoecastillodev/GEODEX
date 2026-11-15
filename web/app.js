@@ -265,7 +265,9 @@ const VARIABLES = [
   { id: 'PRECTOTCORR', nombre: 'Precipitación', unidad: 'mm', niveles: ['pais', 'provincias'],
     descripcion: 'Cuánta lluvia cae cada mes.' },
   { id: 'GWETROOT', nombre: 'Humedad del suelo', unidad: '%', niveles: ['pais', 'provincias'],
-    descripcion: 'Qué tan mojado está el suelo donde crecen las raíces (hasta ~1 metro). Clave para cultivos y sequías.' }
+    descripcion: 'Qué tan mojado está el suelo donde crecen las raíces (hasta ~1 metro). Clave para cultivos y sequías.' },
+  { id: 'CAUDAL', nombre: 'Caudal de ríos', unidad: 'm³/s', niveles: ['pais', 'provincias'],
+    descripcion: 'Cuánta agua lleva el río principal de la zona cada segundo (modelo GEOGLOWS).' }
 ];
 
 
@@ -305,6 +307,11 @@ const IMPACTOS = {
     sube: 'Un suelo más húmedo favorece los cultivos, pero si se satura aumenta el riesgo de inundaciones y deslizamientos.',
     baja: 'Un suelo más seco es señal de sequía: las plantas sufren, bajan las cosechas y aumenta el riesgo de incendios.',
     porque: 'la humedad del suelo decide si los cultivos tienen agua'
+  },
+  CAUDAL: {
+    sube: 'Ríos con más agua ayudan a presas y riego, pero aumentan el riesgo de crecidas e inundaciones.',
+    baja: 'Ríos con menos agua significan menos agua para tomar, regar y generar electricidad, y más contaminación concentrada.',
+    porque: 'de los ríos dependen el agua potable, el riego y las hidroeléctricas'
   }
 };
 // los códigos de POWER usan los mismos textos
@@ -455,6 +462,7 @@ function calcularProyeccion(d) {
   const limitar = v => {
     if (d.variable === 'PRECTOTCORR') return Math.max(0, v);
     if (d.variable === 'GWETROOT') return Math.min(100, Math.max(0, v));
+    if (d.variable === 'CAUDAL') return Math.max(0, v);
     return v;
   };
 
