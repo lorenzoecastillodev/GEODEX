@@ -6,8 +6,8 @@ from analizar import analizar
 
 
 app = Flask(__name__)
-VARIABLES_DISPONIBLES = ("T2M", "T2M_MAX", "PRECTOTCORR", "GWETROOT", "CAUDAL")
-MENSAJE_VARIABLES = "La variable debe ser una de las siguientes: T2M, T2M_MAX, PRECTOTCORR, GWETROOT, CAUDAL."
+VARIABLES_DISPONIBLES = ("T2M", "T2M_MAX", "PRECTOTCORR", "GWETROOT", "CAUDAL", "NDVI")
+MENSAJE_VARIABLES = "La variable debe ser una de las siguientes: T2M, T2M_MAX, PRECTOTCORR, GWETROOT, CAUDAL, NDVI."
 ruta_datos = Path(__file__).parent.parent / "datos" / "series.json"
 ruta_zonas = Path(__file__).parent.parent / "datos" / "zonas.json"
 
@@ -26,6 +26,16 @@ if ruta_caudal.exists():
 
         if zona in series and any(float(dato.get("valor", 0)) > 0 for dato in caudal):
             series[zona]["CAUDAL"] = caudal
+
+ruta_vegetacion = Path(__file__).parent.parent / "datos" / "vegetacion.json"            
+
+with open(ruta_vegetacion, "r", encoding="utf-8") as archivo:
+    datos_vegetacion = json.load(archivo)   
+for zona, variables_vegetacion in datos_vegetacion.get("series", {}).items():
+    ndvi = variables_vegetacion.get("NDVI", [])
+
+    if zona in series: 
+        series[zona]["NDVI"] = ndvi
 
 with open(ruta_zonas, "r", encoding="utf-8") as archivo:
     zonas = json.load(archivo)
