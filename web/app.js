@@ -375,7 +375,11 @@ function validar({ desde, hasta }) {
 const ANIO_PROYECCION = 2030;
 
 const USAR_SERVIDOR = true;   // false = volver a los datos falsos
-const API = 'http://127.0.0.1:5000';
+// En tu PC (iniciar_lunyde.py / Live Server) el servidor está en el puerto 5000.
+// En internet, la página y el servidor están en la misma dirección, así que se usa la ruta relativa.
+const API = ['127.0.0.1', 'localhost'].includes(location.hostname) && location.port !== '5000'
+  ? 'http://127.0.0.1:5000'
+  : '';
 
 const zonaParaApi = nombre => nombre;
 

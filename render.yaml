@@ -1,0 +1,18 @@
+# Configuración para publicar LUNYDE en Render (render.com).
+# Render lee este archivo y crea el servicio solo ("Blueprint").
+services:
+  - type: web
+    name: lunyde
+    runtime: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    # 1 proceso con 4 hilos: así el límite de preguntas a la IA se cuenta bien
+    # y el timeout de 90 s deja tiempo a Gemini para responder.
+    startCommand: gunicorn --chdir analisis app:app --bind 0.0.0.0:$PORT --workers 1 --threads 4 --timeout 90
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.9
+      - key: GEMINI_API_KEY
+        sync: false          # Render te la pide en el panel; nunca va en el código
+      - key: LIMITE_IA_POR_HORA
+        value: "30"

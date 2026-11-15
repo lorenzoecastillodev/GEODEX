@@ -1,12 +1,16 @@
 import json
+import os
+import time
+from collections import defaultdict, deque
 from pathlib import Path
 
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, redirect, request, send_from_directory
 from analizar import analizar
 from diagnostico import contexto, diagnostico_local, explicar_ia, mensaje_error_ia
 
 
 app = Flask(__name__)
+RAIZ = Path(__file__).resolve().parent.parent   # carpeta principal del proyecto
 VARIABLES_DISPONIBLES = ("T2M", "T2M_MAX", "PRECTOTCORR", "GWETROOT", "CAUDAL", "NDVI")
 MENSAJE_VARIABLES = "La variable debe ser una de las siguientes: T2M, T2M_MAX, PRECTOTCORR, GWETROOT, CAUDAL, NDVI."
 ruta_datos = Path(__file__).parent.parent / "datos" / "series.json"
@@ -28,15 +32,15 @@ if ruta_caudal.exists():
         if zona in series and any(float(dato.get("valor", 0)) > 0 for dato in caudal):
             series[zona]["CAUDAL"] = caudal
 
-ruta_vegetacion = Path(__file__).parent.parent / "datos" / "vegetacion.json"            
+ruta_vegetacion = Path(__file__).parent.parent / "datos" / "vegetacion.json"
+if ruta_vegetacion.exists():
+    with open(ruta_vegetacion, "r", encoding="utf-8") as archivo:
+        datos_vegetacion = json.load(archivo)
+    for zona, variables_vegetacion in datos_vegetacion.get("series", {}).items():
+        ndvi = variables_vegetacion.get("NDVI", [])
 
-with open(ruta_vegetacion, "r", encoding="utf-8") as archivo:
-    datos_vegetacion = json.load(archivo)   
-for zona, variables_vegetacion in datos_vegetacion.get("series", {}).items():
-    ndvi = variables_vegetacion.get("NDVI", [])
-
-    if zona in series: 
-        series[zona]["NDVI"] = ndvi
+        if zona in series:
+            series[zona]["NDVI"] = ndvi
 
 with open(ruta_zonas, "r", encoding="utf-8") as archivo:
     zonas = json.load(archivo)
@@ -48,6 +52,46 @@ def agregar_cors(respuesta):
     respuesta.headers["Access-Control-Allow-Headers"] = "Content-Type"
     respuesta.headers["Access-Control-Allow-Methods"] = "GET, POST, OPTIONS"
     return respuesta
+
+
+# ===== Página web servida por el mismo Flask (para publicarla en internet con una sola dirección) =====
+@app.get("/")
+def inicio():
+    return redirect("/web/")
+
+
+@app.get("/web/")
+@app.get("/web/<path:archivo>")
+def pagina_web(archivo="index.html"):
+    return send_from_directory(RAIZ / "web", archivo)
+
+
+@app.get("/datos/geo/<path:archivo>")
+def mapas(archivo):
+    # Solo se publican los mapas (GeoJSON), no el resto de la carpeta datos/.
+    return send_from_directory(RAIZ / "datos" / "geo", archivo)
+
+
+# ===== Límite de preguntas a la IA por visitante (para que nadie gaste toda la cuota de Gemini) =====
+LIMITE_IA_POR_HORA = int(os.environ.get("LIMITE_IA_POR_HORA", "30"))
+_usos_ia = defaultdict(deque)
+
+
+def ip_visitante():
+    # En Render la IP real llega en X-Forwarded-For (la primera de la lista).
+    reenviada = request.headers.get("X-Forwarded-For", "")
+    return reenviada.split(",")[0].strip() or request.remote_addr or "desconocida"
+
+
+def puede_usar_ia():
+    ahora = time.time()
+    usos = _usos_ia[ip_visitante()]
+    while usos and ahora - usos[0] > 3600:
+        usos.popleft()
+    if len(usos) >= LIMITE_IA_POR_HORA:
+        return False
+    usos.append(ahora)
+    return True
 
 
 @app.get("/api/analisis")
@@ -158,7 +202,11 @@ def api_diagnostico():
                  'impacto': 'Explica posibles causas y sus posibles implicaciones para la zona y período seleccionados, considerando la variable principal y las demás disponibles. Distingue lo observado de los efectos posibles; no afirmes daños, causas ni impactos locales que los datos no demuestran.'}
     texto = None
     try:
+        if not puede_usar_ia():
+            raise PermissionError
         texto = explicar_ia(c, pregunta if accion == 'preguntar' else preguntas[accion], historial)
+    except PermissionError:
+        aviso = f'Llegaste al límite de {LIMITE_IA_POR_HORA} consultas a la IA por hora. Intenta más tarde.'
     except Exception as error:
         # Nunca exponer claves ni detalles internos del proveedor.
         aviso = mensaje_error_ia(error)

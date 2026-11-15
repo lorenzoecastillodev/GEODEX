@@ -1,0 +1,6 @@
+# Librerías que necesita LUNYDE en el servidor (Render las instala solas)
+flask
+pymannkendall
+numpy
+scipy
+gunicorn
