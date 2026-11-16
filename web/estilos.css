@@ -316,7 +316,12 @@ body:has(#resultados:not([hidden])) #leyenda { display: none; }
   background: #13294d; border: 1px solid rgba(255,255,255,0.15); border-radius: 16px;
   box-shadow: 0 12px 40px rgba(0,0,0,0.5); color: #fff;
 }
-.aviso-movil-icono { font-size: 44px; margin-bottom: 8px; }
+.aviso-movil-icono {
+  width: 72px; height: 72px; margin: 0 auto 14px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(31, 182, 166, 0.15); color: var(--turquesa);
+}
+.aviso-movil-icono .icono { width: 38px; height: 38px; stroke-width: 1.8; }
 .aviso-movil-caja h2 { margin: 0 0 10px; font-size: 22px; color: var(--turquesa); }
 .aviso-movil-caja p { margin: 0 0 16px; font-size: 16px; line-height: 1.5; opacity: 0.95; }
 .aviso-movil-caja button {
