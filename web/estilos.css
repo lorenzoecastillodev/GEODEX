@@ -318,8 +318,16 @@ body:has(#resultados:not([hidden])) #leyenda { display: none; }
 }
 .aviso-movil-icono { font-size: 44px; margin-bottom: 8px; }
 .aviso-movil-caja h2 { margin: 0 0 10px; font-size: 22px; color: var(--turquesa); }
-.aviso-movil-caja p { margin: 0 0 20px; font-size: 16px; line-height: 1.5; opacity: 0.95; }
+.aviso-movil-caja p { margin: 0 0 16px; font-size: 16px; line-height: 1.5; opacity: 0.95; }
 .aviso-movil-caja button {
   border: none; border-radius: 999px; padding: 12px 22px; cursor: pointer;
   background: var(--turquesa); color: var(--marino); font-size: 15px; font-weight: 700;
 }
+
+/* En pantallas pequeñas la app queda bloqueada: solo se ve el aviso */
+@media (max-width: 900px), (hover: none) and (pointer: coarse) {
+  body > *:not(#aviso-movil) { display: none !important; }
+  body { overflow: hidden; background: #0b1d3a; }
+  #aviso-movil { background: #0b1d3a; backdrop-filter: none; }
+}
+.aviso-movil-pie { margin: 0 !important; font-size: 13px !important; color: var(--turquesa); opacity: 0.9; }
