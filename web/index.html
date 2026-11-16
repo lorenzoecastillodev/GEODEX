@@ -11,9 +11,20 @@
 
   <div id="mapa"></div>
 
+  <!-- Aviso para celulares: la app está pensada para computadora -->
+  <div id="aviso-movil" role="dialog" aria-labelledby="aviso-movil-titulo">
+    <div class="aviso-movil-caja">
+      <div class="aviso-movil-icono">💻</div>
+      <h2 id="aviso-movil-titulo">Mejor en computadora</h2>
+      <p>GEODEX está diseñado para pantallas grandes. Para ver bien el mapa, las gráficas y el asistente, ábrelo desde una <b>computadora</b>.</p>
+      <button type="button" onclick="document.getElementById('aviso-movil').remove()">Continuar de todos modos</button>
+    </div>
+  </div>
+
   <header id="barra">
     <div class="marca">
       <h1>GEODEX</h1>
+      <p>Hecho por el equipo LUNYDE</p>
     </div>
     <div class="buscador">
       <select id="tipo-busqueda" title="¿Qué quieres buscar?">

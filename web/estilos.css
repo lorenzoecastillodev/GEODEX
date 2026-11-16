@@ -298,3 +298,28 @@ body:has(#resultados:not([hidden])) #leyenda { display: none; }
 .leaflet-control-attribution.leaflet-control {
   background: rgba(11, 29, 58, 0.85); color: #cfe3f5; font-size: 12px; padding: 3px 10px; border-top-left-radius: 6px;
 }
+
+/* Firma del equipo debajo de GEODEX */
+.marca p { margin: 0; font-size: 14px; color: var(--turquesa); opacity: 1; letter-spacing: 0.5px; }
+
+/* Aviso para celulares y tablets: solo aparece en pantallas pequeñas o táctiles */
+#aviso-movil { display: none; }
+@media (max-width: 900px), (hover: none) and (pointer: coarse) {
+  #aviso-movil {
+    display: flex; position: fixed; inset: 0; z-index: 5000;
+    align-items: center; justify-content: center; padding: 24px;
+    background: rgba(6, 18, 38, 0.88); backdrop-filter: blur(4px);
+  }
+}
+.aviso-movil-caja {
+  max-width: 360px; text-align: center; padding: 28px 24px;
+  background: #13294d; border: 1px solid rgba(255,255,255,0.15); border-radius: 16px;
+  box-shadow: 0 12px 40px rgba(0,0,0,0.5); color: #fff;
+}
+.aviso-movil-icono { font-size: 44px; margin-bottom: 8px; }
+.aviso-movil-caja h2 { margin: 0 0 10px; font-size: 22px; color: var(--turquesa); }
+.aviso-movil-caja p { margin: 0 0 20px; font-size: 16px; line-height: 1.5; opacity: 0.95; }
+.aviso-movil-caja button {
+  border: none; border-radius: 999px; padding: 12px 22px; cursor: pointer;
+  background: var(--turquesa); color: var(--marino); font-size: 15px; font-weight: 700;
+}
